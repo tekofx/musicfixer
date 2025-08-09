@@ -5,14 +5,20 @@ import (
 	"os"
 	"path/filepath"
 
+	perrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/metadata"
 )
 
-func getSong(path string) (*Song, error) {
+func getSong(path string) (*Song, error, *perrors.SongMetadataError) {
 
-	m, err := metadata.GetMetadata(path)
+	m, err, songMetadataErrors := metadata.GetMetadata(path)
 	if err != nil {
-		return nil, err
+		return nil, err, nil
+	}
+
+	if songMetadataErrors != nil {
+
+		return nil, nil, songMetadataErrors
 	}
 
 	track, _ := m.Track()
@@ -27,7 +33,7 @@ func getSong(path string) (*Song, error) {
 		AlbumName: m.Album(),
 	}
 
-	return &song, nil
+	return &song, nil, nil
 }
 
 func SetNewFilePaths(albumSongs *map[string]Album) {
@@ -81,9 +87,11 @@ func RenameSongs(albumSongs map[string]Album, outputDir string) error {
 	return nil
 }
 
-func ReadAlbums(searchDir string) (*map[string]Album, error) {
+func ReadAlbums(searchDir string) (*map[string]Album, []perrors.SongMetadataError) {
 	// Initialize a map to group songs by album
 	albumSongs := make(map[string]Album)
+
+	var perrors []perrors.SongMetadataError
 
 	err := filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -100,9 +108,14 @@ func ReadAlbums(searchDir string) (*map[string]Album, error) {
 			return nil
 		}
 
-		song, err := getSong(path)
+		song, err, songMetadataErrors := getSong(path)
 		if err != nil {
-			return err
+			return nil
+		}
+
+		if songMetadataErrors != nil {
+			perrors = append(perrors, *songMetadataErrors)
+			return nil
 		}
 
 		album := albumSongs[song.AlbumName]
@@ -119,13 +132,18 @@ func ReadAlbums(searchDir string) (*map[string]Album, error) {
 
 		return nil
 	})
+
 	if err != nil {
-		return nil, err
+		return nil, nil
+	}
+
+	if len(perrors) > 0 {
+		return nil, perrors
 	}
 
 	if len(albumSongs) == 0 {
 		err = fmt.Errorf("Not mp3 files found in %s", searchDir)
-		return nil, err
+		return nil, nil
 	}
 
 	return &albumSongs, nil

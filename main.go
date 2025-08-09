@@ -12,9 +12,12 @@ func main() {
 	outputDir, dry, removeOriginalFolder := flags.SetupFlags()
 	dir := flags.GetDir()
 
-	albumSongs, err := model.ReadAlbums(dir)
-	if err != nil {
-		fmt.Printf("Error reading songs: %v\n", err)
+	albumSongs, errors := model.ReadAlbums(dir)
+	if errors != nil {
+		fmt.Println("Error reading songs metadata:")
+		for _, error := range errors {
+			fmt.Printf("%v\n", error)
+		}
 		os.Exit(0)
 	}
 
@@ -24,7 +27,7 @@ func main() {
 		flags.DryRun(albumSongs, outputDir)
 	}
 
-	err = model.RenameSongs(*albumSongs, outputDir)
+	err := model.RenameSongs(*albumSongs, outputDir)
 	if err != nil {
 		fmt.Printf("Error renaming songs: %v\n", err)
 		os.Exit(0)
