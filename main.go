@@ -50,7 +50,6 @@ func setupFlags() (string, bool) {
 		fmt.Fprintf(os.Stderr, "-d, --dry\t Show changes without renaming\n")
 		fmt.Fprintf(os.Stderr, "-o, --output\t Output directory of renamed files\n")
 		fmt.Fprintf(os.Stderr, "-h, --help\t Show Help\n")
-
 	}
 
 	flag.Parse()
@@ -67,16 +66,18 @@ func main() {
 	if len(args) > 1 {
 		log.Fatal("Only 1 argument is supported")
 	}
-
 	rootDir := "./"
-	pathExists, err := pathExists(args[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !pathExists {
-		log.Fatal("Path not exists")
-	} else {
-		rootDir = args[0]
+
+	if len(args) == 1 {
+		pathExists, err := pathExists(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		if !pathExists {
+			log.Fatal("Path not exists")
+		} else {
+			rootDir = args[0]
+		}
 	}
 
 	albumSongs, err := readAlbums(rootDir)
@@ -84,20 +85,25 @@ func main() {
 		fmt.Println(err)
 	}
 
-	err = renameSongs(*albumSongs)
+	err = renameSongs(*albumSongs, dryRun)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 }
 
-func renameSongs(albumSongs map[string]Album) *error {
-	os.Mkdir("output", 0700)
+func renameSongs(albumSongs map[string]Album, dry bool) *error {
+
+	if !dry {
+		os.Mkdir("output", 0700)
+	}
 
 	for _, album := range albumSongs {
 
 		outputPath := filepath.Join("output", album.Name)
-		os.Mkdir(outputPath, 0700)
+		if !dry {
+			os.Mkdir(outputPath, 0700)
+		}
 		coverPath := filepath.Join(outputPath, "cover.jpg")
 		err := saveCoverArt(album.Songs[0].Metadata, coverPath)
 		if err != nil {
@@ -107,10 +113,14 @@ func renameSongs(albumSongs map[string]Album) *error {
 		for _, song := range album.Songs {
 			newFilePath := getNewFilePath(song, album)
 
-			err := os.Rename(song.FilePath, newFilePath)
-			if err != nil {
-				fmt.Println(err)
-				return &err
+			if dry {
+				fmt.Printf("%s-->%s\n", song.FilePath, newFilePath)
+			} else {
+				err := os.Rename(song.FilePath, newFilePath)
+				if err != nil {
+					fmt.Println(err)
+					return &err
+				}
 			}
 		}
 	}
