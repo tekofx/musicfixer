@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/mrz1836/go-sanitize"
 	perrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/metadata"
 )
@@ -58,7 +59,7 @@ func setNewFilePath(song Song, album Album) string {
 
 	if album.MultiDisk {
 		disc := song.Disc
-		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, song.Title)
+		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, sanitize.AlphaNumeric(song.Title, false))
 	} else {
 		newName = fmt.Sprintf("%s. %s.mp3", trackString, song.Title)
 	}
@@ -69,7 +70,7 @@ func setNewFilePath(song Song, album Album) string {
 func RenameSongs(albumSongs map[string]Album, outputDir string) error {
 	os.Mkdir(outputDir, 0700)
 	for _, album := range albumSongs {
-		outputPath := filepath.Join(outputDir, album.Name)
+		outputPath := filepath.Join(outputDir, sanitize.AlphaNumeric(album.Name, false))
 		os.Mkdir(outputPath, 0700)
 		coverPath := filepath.Join(outputPath, "cover.jpg")
 		err := saveCover(album.Songs[0], coverPath)
