@@ -5,26 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dhowden/tag"
 	"github.com/tekofx/musicfixer/internal/metadata"
 )
-
-// Song represents a music file with metadata
-type Song struct {
-	FilePath    string
-	NewFilePath string
-	Track       int
-	Disc        int
-	Title       string
-	Picture     tag.Picture
-	AlbumName   string
-}
-
-type Album struct {
-	Name      string
-	Songs     []Song
-	MultiDisk bool
-}
 
 func getSong(path string) (*Song, error) {
 
