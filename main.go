@@ -58,9 +58,6 @@ func setupFlags() (string, bool) {
 
 func getDir() string {
 	args := flag.Args()
-
-	fmt.Println(args)
-
 	rootDir, _ := os.Getwd()
 
 	if len(args) == 0 {
