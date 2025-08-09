@@ -14,7 +14,7 @@ func main() {
 
 	albumSongs, err := model.ReadAlbums(dir)
 	if err != nil {
-		fmt.Println(*err)
+		fmt.Printf("Error reading songs: %v\n", err)
 		os.Exit(0)
 	}
 
@@ -26,14 +26,14 @@ func main() {
 
 	err = model.RenameSongs(*albumSongs, outputDir)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Error renaming songs: %v\n", err)
 		os.Exit(0)
 	}
 
 	if removeOriginalFolder {
 		err := os.RemoveAll(dir)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error removing original directories: %v", err)
 		}
 	}
 
