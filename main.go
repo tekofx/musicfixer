@@ -83,8 +83,6 @@ func getDir() string {
 func main() {
 	outputDir, dryRun := setupFlags()
 	dir := getDir()
-	fmt.Printf("Flags: outputDir=%s dryRun=%t\n", outputDir, dryRun)
-	fmt.Println(dir)
 
 	albumSongs, err := readAlbums(dir)
 	if err != nil {
@@ -98,7 +96,6 @@ func main() {
 
 	err = renameSongs(*albumSongs, dryRun, outputDir)
 	if err != nil {
-		fmt.Println("err")
 		fmt.Println(err)
 	}
 
