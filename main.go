@@ -12,8 +12,9 @@ import (
 
 // Song represents a music file with metadata
 type Song struct {
-	FilePath string
-	Metadata tag.Metadata
+	FilePath    string
+	Metadata    tag.Metadata
+	NewFilePath string
 }
 
 type Album struct {
@@ -96,7 +97,21 @@ func main() {
 		os.Exit(0)
 	}
 
-	err = renameSongs(*albumSongs, dryRun, outputDir)
+	getNewFilePaths(albumSongs)
+
+	if dryRun {
+		for _, album := range *albumSongs {
+			outputPath := filepath.Join(outputDir, album.Name)
+			coverPath := filepath.Join(outputPath, "cover.jpg")
+			fmt.Printf("Cover: %s\n", coverPath)
+			for _, song := range album.Songs {
+				fmt.Printf("%s-->%s\n", song.FilePath, song.NewFilePath)
+			}
+		}
+		os.Exit(0)
+	}
+
+	err = renameFiles(*albumSongs, outputDir)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -110,38 +125,34 @@ func main() {
 
 }
 
-func renameSongs(albumSongs map[string]Album, dry bool, outputDir string) *error {
-
-	if !dry {
-		os.Mkdir(outputDir, 0700)
-	}
+func renameFiles(albumSongs map[string]Album, outputDir string) *error {
+	os.Mkdir(outputDir, 0700)
 	for _, album := range albumSongs {
-
 		outputPath := filepath.Join(outputDir, album.Name)
-		if !dry {
-			os.Mkdir(outputPath, 0700)
-			coverPath := filepath.Join(outputPath, "cover.jpg")
-			err := saveCoverArt(album.Songs[0].Metadata, coverPath)
-			if err != nil {
-				return err
-			}
+		os.Mkdir(outputPath, 0700)
+		coverPath := filepath.Join(outputPath, "cover.jpg")
+		err := saveCoverArt(album.Songs[0].Metadata, coverPath)
+		if err != nil {
+			return err
 		}
 
 		for _, song := range album.Songs {
-			newFilePath := getNewFilePath(song, album)
-
-			if dry {
-				fmt.Printf("%s-->%s\n", song.FilePath, newFilePath)
-			} else {
-				err := os.Rename(song.FilePath, newFilePath)
-				if err != nil {
-					fmt.Println(err)
-					return &err
-				}
+			err := os.Rename(song.FilePath, song.NewFilePath)
+			if err != nil {
+				return &err
 			}
 		}
 	}
 	return nil
+}
+
+func getNewFilePaths(albumSongs *map[string]Album) {
+	for _, album := range *albumSongs {
+		for i := range album.Songs {
+			newFilePath := getNewFilePath(album.Songs[i], album)
+			album.Songs[i].NewFilePath = newFilePath
+		}
+	}
 }
 
 func getNewFilePath(song Song, album Album) string {
