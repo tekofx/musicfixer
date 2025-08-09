@@ -33,7 +33,7 @@ func pathExists(path string) (bool, *error) {
 	return false, &err // Some other error (e.g., permission denied)
 }
 
-func setupFlags() (string, bool) {
+func setupFlags() (string, bool, bool) {
 
 	var outputDir string
 	outputDir = "output"
@@ -43,6 +43,9 @@ func setupFlags() (string, bool) {
 	flag.BoolVar(&dryRun, "dry", false, "Show changes")
 	flag.BoolVar(&dryRun, "d", false, "Show changes")
 
+	var removeOriginalFolder bool
+	flag.BoolVar(&removeOriginalFolder, "remove", false, "Remove original folder")
+	flag.BoolVar(&removeOriginalFolder, "r", false, "Remove original folder")
 	// Help flag
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [FLAGS] [directory]\n", os.Args[0])
@@ -50,10 +53,12 @@ func setupFlags() (string, bool) {
 		fmt.Fprintf(os.Stderr, "-d, --dry\t Show changes without renaming\n")
 		fmt.Fprintf(os.Stderr, "-o, --output\t Output directory of renamed files\n")
 		fmt.Fprintf(os.Stderr, "-h, --help\t Show Help\n")
+		fmt.Fprintf(os.Stderr, "-r, --remove\t Remove original folder\n")
+
 	}
 
 	flag.Parse()
-	return outputDir, dryRun
+	return outputDir, dryRun, removeOriginalFolder
 }
 
 func getDir() string {
@@ -78,7 +83,7 @@ func getDir() string {
 }
 
 func main() {
-	outputDir, dryRun := setupFlags()
+	outputDir, dryRun, removeOriginalFolder := setupFlags()
 	dir := getDir()
 
 	albumSongs, err := readAlbums(dir)
@@ -94,6 +99,13 @@ func main() {
 	err = renameSongs(*albumSongs, dryRun, outputDir)
 	if err != nil {
 		fmt.Println(err)
+	}
+
+	if removeOriginalFolder && !dryRun {
+		err := os.RemoveAll(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 }
