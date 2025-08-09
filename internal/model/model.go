@@ -60,7 +60,7 @@ func setNewFilePath(song Song, album Album) string {
 	return filepath.Join("output", album.Name, newName)
 }
 
-func RenameSongs(albumSongs map[string]Album, outputDir string) *error {
+func RenameSongs(albumSongs map[string]Album, outputDir string) error {
 	os.Mkdir(outputDir, 0700)
 	for _, album := range albumSongs {
 		outputPath := filepath.Join(outputDir, album.Name)
@@ -74,14 +74,14 @@ func RenameSongs(albumSongs map[string]Album, outputDir string) *error {
 		for _, song := range album.Songs {
 			err := os.Rename(song.FilePath, song.NewFilePath)
 			if err != nil {
-				return &err
+				return err
 			}
 		}
 	}
 	return nil
 }
 
-func ReadAlbums(searchDir string) (*map[string]Album, *error) {
+func ReadAlbums(searchDir string) (*map[string]Album, error) {
 	// Initialize a map to group songs by album
 	albumSongs := make(map[string]Album)
 
@@ -120,18 +120,18 @@ func ReadAlbums(searchDir string) (*map[string]Album, *error) {
 		return nil
 	})
 	if err != nil {
-		return nil, &err
+		return nil, err
 	}
 
 	if len(albumSongs) == 0 {
 		err = fmt.Errorf("Not mp3 files found in %s", searchDir)
-		return nil, &err
+		return nil, err
 	}
 
 	return &albumSongs, nil
 }
 
-func saveCover(song Song, outputFilePath string) *error {
+func saveCover(song Song, outputFilePath string) error {
 	var err error
 
 	// Retrieve the cover art data
@@ -141,14 +141,14 @@ func saveCover(song Song, outputFilePath string) *error {
 	if len(songPicture.Data) == 0 {
 		err = fmt.Errorf("no cover art found")
 
-		return &err
+		return err
 	}
 
 	// Create the output file
 	outputFile, err := os.Create(outputFilePath)
 	if err != nil {
 		err = fmt.Errorf("failed to create output file: %w", err)
-		return &err
+		return err
 	}
 	defer outputFile.Close()
 
@@ -156,7 +156,7 @@ func saveCover(song Song, outputFilePath string) *error {
 	_, err = outputFile.Write(songPicture.Data)
 	if err != nil {
 		err = fmt.Errorf("failed to write cover art: %w", err)
-		return &err
+		return err
 	}
 
 	return nil

@@ -10,7 +10,7 @@ import (
 	"github.com/tekofx/musicfixer/internal/model"
 )
 
-func pathExists(path string) (bool, *error) {
+func pathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil // Path exists
@@ -18,7 +18,7 @@ func pathExists(path string) (bool, *error) {
 	if os.IsNotExist(err) {
 		return false, nil // Path does not exist
 	}
-	return false, &err // Some other error (e.g., permission denied)
+	return false, err // Some other error (e.g., permission denied)
 }
 
 func SetupFlags() (string, bool, bool) {
