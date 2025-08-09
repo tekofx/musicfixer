@@ -59,14 +59,15 @@ func setupFlags() (string, bool) {
 func main() {
 
 	outputDir, dryRun := setupFlags()
-	fmt.Printf("Flags: outputDir=%s dryRun=%t", outputDir, dryRun)
+	fmt.Printf("Flags: outputDir=%s dryRun=%t\n", outputDir, dryRun)
 
 	args := flag.Args()
 
 	if len(args) > 1 {
 		log.Fatal("Only 1 argument is supported")
 	}
-	rootDir := "./"
+
+	rootDir, _ := os.Getwd()
 
 	if len(args) == 1 {
 		pathExists, err := pathExists(args[0])
@@ -83,6 +84,11 @@ func main() {
 	albumSongs, err := readAlbums(rootDir)
 	if err != nil {
 		fmt.Println(err)
+	}
+
+	if len(*albumSongs) == 0 {
+		fmt.Printf("No mp3 files found in %s", rootDir)
+		os.Exit(0)
 	}
 
 	err = renameSongs(*albumSongs, dryRun)
