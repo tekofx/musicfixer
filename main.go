@@ -2,11 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/dhowden/tag"
 )
 
 func main() {
@@ -58,7 +55,7 @@ func renameFiles(albumSongs map[string]Album, outputDir string) *error {
 		outputPath := filepath.Join(outputDir, album.Name)
 		os.Mkdir(outputPath, 0700)
 		coverPath := filepath.Join(outputPath, "cover.jpg")
-		err := saveCoverArt(album.Songs[0].Metadata, coverPath)
+		err := saveCoverArt(album.Songs[0], coverPath)
 		if err != nil {
 			return err
 		}
@@ -83,7 +80,7 @@ func getNewFilePaths(albumSongs *map[string]Album) {
 }
 
 func getNewFilePath(song Song, album Album) string {
-	track, _ := song.Metadata.Track()
+	track := song.Track
 	var newName string
 	var trackString string
 
@@ -94,20 +91,20 @@ func getNewFilePath(song Song, album Album) string {
 	}
 
 	if album.MultiDisk {
-		disc, _ := song.Metadata.Disc()
-		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, song.Metadata.Title())
+		disc := song.Disc
+		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, song.Title)
 	} else {
-		newName = fmt.Sprintf("%s. %s.mp3", trackString, song.Metadata.Title())
+		newName = fmt.Sprintf("%s. %s.mp3", trackString, song.Title)
 	}
 
 	return filepath.Join("output", album.Name, newName)
 }
 
-func readAlbums(rootDir string) (*map[string]Album, *error) {
+func readAlbums(searchDir string) (*map[string]Album, *error) {
 	// Initialize a map to group songs by album
 	albumSongs := make(map[string]Album)
 
-	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -119,60 +116,48 @@ func readAlbums(rootDir string) (*map[string]Album, *error) {
 
 		// Check if the file is an MP3
 		if filepath.Ext(path) != ".mp3" {
-			err = fmt.Errorf("Not mp3 files found in %s", path)
+			return nil
+		}
+
+		song, err := getSong(path)
+		if err != nil {
 			return err
 		}
 
-		file, err := os.Open(path)
-		if err != nil {
-
-			log.Printf("Error opening file %s: %v\n", path, err)
-			return err
-		}
-		defer file.Close()
-
-		m, err := tag.ReadFrom(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		album := m.Album()
-
-		// Create a new song entry
-		song := Song{
-			FilePath: path,
-			Metadata: m,
-		}
-
-		albumArray := albumSongs[album]
-		albumArray.Name = album
-		albumArray.Songs = append(albumArray.Songs, song)
-		if !albumArray.MultiDisk {
-			disc, _ := song.Metadata.Disc()
-			if disc > 1 {
-				albumArray.MultiDisk = true
+		album := albumSongs[song.AlbumName]
+		album.Name = song.AlbumName
+		album.Songs = append(album.Songs, *song)
+		if !album.MultiDisk {
+			if song.Disc > 1 {
+				album.MultiDisk = true
 			}
 		}
 
 		// Add the song to the appropriate album group
-		albumSongs[album] = albumArray
+		albumSongs[song.AlbumName] = album
 
 		return nil
 	})
 	if err != nil {
 		return nil, &err
 	}
+
+	if len(albumSongs) == 0 {
+		err = fmt.Errorf("Not mp3 files found in %s", searchDir)
+		return nil, &err
+	}
+
 	return &albumSongs, nil
 }
 
-func saveCoverArt(m tag.Metadata, outputFilePath string) *error {
+func saveCoverArt(song Song, outputFilePath string) *error {
 	var err error
 
 	// Retrieve the cover art data
-	coverData := m.Picture()
+	songPicture := song.Picture
 
 	// Check if cover art exists
-	if len(coverData.Data) == 0 {
+	if len(songPicture.Data) == 0 {
 		err = fmt.Errorf("no cover art found")
 
 		return &err
@@ -187,7 +172,7 @@ func saveCoverArt(m tag.Metadata, outputFilePath string) *error {
 	defer outputFile.Close()
 
 	// Write the cover art data to the file
-	_, err = outputFile.Write(coverData.Data)
+	_, err = outputFile.Write(songPicture.Data)
 	if err != nil {
 		err = fmt.Errorf("failed to write cover art: %w", err)
 		return &err
