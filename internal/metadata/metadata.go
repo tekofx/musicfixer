@@ -1,4 +1,4 @@
-package main
+package metadata
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func checkMetadata(m tag.Metadata, path string) error {
 
 }
 
-func getMetadata(path string) (tag.Metadata, error) {
+func GetMetadata(path string) (tag.Metadata, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		log.Printf("Error opening file %s: %v\n", path, err)

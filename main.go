@@ -3,26 +3,28 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
+
+	"github.com/tekofx/musicfixer/internal/flags"
+	"github.com/tekofx/musicfixer/internal/model"
 )
 
 func main() {
-	outputDir, dry, removeOriginalFolder := setupFlags()
-	dir := getDir()
+	outputDir, dry, removeOriginalFolder := flags.SetupFlags()
+	dir := flags.GetDir()
 
-	albumSongs, err := readAlbums(dir)
+	albumSongs, err := model.ReadAlbums(dir)
 	if err != nil {
 		fmt.Println(*err)
 		os.Exit(0)
 	}
 
-	getNewFilePaths(albumSongs)
+	model.SetNewFilePaths(albumSongs)
 
 	if dry {
-		dryRun(albumSongs, outputDir)
+		flags.DryRun(albumSongs, outputDir)
 	}
 
-	err = renameFiles(*albumSongs, outputDir)
+	err = model.RenameSongs(*albumSongs, outputDir)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(0)
@@ -35,148 +37,4 @@ func main() {
 		}
 	}
 
-}
-
-func dryRun(albumSongs *map[string]Album, outputDir string) {
-	for _, album := range *albumSongs {
-		outputPath := filepath.Join(outputDir, album.Name)
-		coverPath := filepath.Join(outputPath, "cover.jpg")
-		fmt.Printf("Cover: %s\n", coverPath)
-		for _, song := range album.Songs {
-			fmt.Printf("%s-->%s\n", song.FilePath, song.NewFilePath)
-		}
-	}
-	os.Exit(0)
-}
-
-func renameFiles(albumSongs map[string]Album, outputDir string) *error {
-	os.Mkdir(outputDir, 0700)
-	for _, album := range albumSongs {
-		outputPath := filepath.Join(outputDir, album.Name)
-		os.Mkdir(outputPath, 0700)
-		coverPath := filepath.Join(outputPath, "cover.jpg")
-		err := saveCoverArt(album.Songs[0], coverPath)
-		if err != nil {
-			return err
-		}
-
-		for _, song := range album.Songs {
-			err := os.Rename(song.FilePath, song.NewFilePath)
-			if err != nil {
-				return &err
-			}
-		}
-	}
-	return nil
-}
-
-func getNewFilePaths(albumSongs *map[string]Album) {
-	for _, album := range *albumSongs {
-		for i := range album.Songs {
-			newFilePath := getNewFilePath(album.Songs[i], album)
-			album.Songs[i].NewFilePath = newFilePath
-		}
-	}
-}
-
-func getNewFilePath(song Song, album Album) string {
-	track := song.Track
-	var newName string
-	var trackString string
-
-	if track < 10 {
-		trackString = fmt.Sprintf("0%d", track)
-	} else {
-		trackString = fmt.Sprintf("%d", track)
-	}
-
-	if album.MultiDisk {
-		disc := song.Disc
-		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, song.Title)
-	} else {
-		newName = fmt.Sprintf("%s. %s.mp3", trackString, song.Title)
-	}
-
-	return filepath.Join("output", album.Name, newName)
-}
-
-func readAlbums(searchDir string) (*map[string]Album, *error) {
-	// Initialize a map to group songs by album
-	albumSongs := make(map[string]Album)
-
-	err := filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		// Skip directories
-		if info.IsDir() {
-			return nil
-		}
-
-		// Check if the file is an MP3
-		if filepath.Ext(path) != ".mp3" {
-			return nil
-		}
-
-		song, err := getSong(path)
-		if err != nil {
-			return err
-		}
-
-		album := albumSongs[song.AlbumName]
-		album.Name = song.AlbumName
-		album.Songs = append(album.Songs, *song)
-		if !album.MultiDisk {
-			if song.Disc > 1 {
-				album.MultiDisk = true
-			}
-		}
-
-		// Add the song to the appropriate album group
-		albumSongs[song.AlbumName] = album
-
-		return nil
-	})
-	if err != nil {
-		return nil, &err
-	}
-
-	if len(albumSongs) == 0 {
-		err = fmt.Errorf("Not mp3 files found in %s", searchDir)
-		return nil, &err
-	}
-
-	return &albumSongs, nil
-}
-
-func saveCoverArt(song Song, outputFilePath string) *error {
-	var err error
-
-	// Retrieve the cover art data
-	songPicture := song.Picture
-
-	// Check if cover art exists
-	if len(songPicture.Data) == 0 {
-		err = fmt.Errorf("no cover art found")
-
-		return &err
-	}
-
-	// Create the output file
-	outputFile, err := os.Create(outputFilePath)
-	if err != nil {
-		err = fmt.Errorf("failed to create output file: %w", err)
-		return &err
-	}
-	defer outputFile.Close()
-
-	// Write the cover art data to the file
-	_, err = outputFile.Write(songPicture.Data)
-	if err != nil {
-		err = fmt.Errorf("failed to write cover art: %w", err)
-		return &err
-	}
-
-	return nil
 }

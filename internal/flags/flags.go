@@ -1,10 +1,13 @@
-package main
+package flags
 
 import (
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+
+	"github.com/tekofx/musicfixer/internal/model"
 )
 
 func pathExists(path string) (bool, *error) {
@@ -18,7 +21,7 @@ func pathExists(path string) (bool, *error) {
 	return false, &err // Some other error (e.g., permission denied)
 }
 
-func setupFlags() (string, bool, bool) {
+func SetupFlags() (string, bool, bool) {
 
 	var outputDir string
 	outputDir = "output"
@@ -46,7 +49,7 @@ func setupFlags() (string, bool, bool) {
 	return outputDir, dryRun, removeOriginalFolder
 }
 
-func getDir() string {
+func GetDir() string {
 	args := flag.Args()
 	rootDir, _ := os.Getwd()
 
@@ -65,4 +68,16 @@ func getDir() string {
 	}
 
 	return rootDir
+}
+
+func DryRun(albumSongs *map[string]model.Album, outputDir string) {
+	for _, album := range *albumSongs {
+		outputPath := filepath.Join(outputDir, album.Name)
+		coverPath := filepath.Join(outputPath, "cover.jpg")
+		fmt.Printf("Cover: %s\n", coverPath)
+		for _, song := range album.Songs {
+			fmt.Printf("%s-->%s\n", song.FilePath, song.NewFilePath)
+		}
+	}
+	os.Exit(0)
 }
