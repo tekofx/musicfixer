@@ -1,4 +1,4 @@
-module github.com/tekofx/mp3-ganizer
+module github.com/tekofx/musicfixer
 
 go 1.24.5
 
