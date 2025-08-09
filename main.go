@@ -56,11 +56,7 @@ func setupFlags() (string, bool) {
 	return outputDir, dryRun
 }
 
-func main() {
-
-	outputDir, dryRun := setupFlags()
-	fmt.Printf("Flags: outputDir=%s dryRun=%t\n", outputDir, dryRun)
-
+func setupCurrentDir() string {
 	args := flag.Args()
 
 	if len(args) > 1 {
@@ -80,6 +76,16 @@ func main() {
 			rootDir = args[0]
 		}
 	}
+
+	return rootDir
+}
+
+func main() {
+
+	outputDir, dryRun := setupFlags()
+	fmt.Printf("Flags: outputDir=%s dryRun=%t\n", outputDir, dryRun)
+
+	rootDir := setupCurrentDir()
 
 	albumSongs, err := readAlbums(rootDir)
 	if err != nil {
