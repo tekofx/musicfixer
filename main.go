@@ -45,7 +45,7 @@ func setupFlags() (string, bool) {
 
 	// Help flag
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s [directory] [FLAGS]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s [FLAGS] [directory]\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "FLAGS:\n")
 		fmt.Fprintf(os.Stderr, "-d, --dry\t Show changes without renaming\n")
 		fmt.Fprintf(os.Stderr, "-o, --output\t Output directory of renamed files\n")
@@ -56,70 +56,69 @@ func setupFlags() (string, bool) {
 	return outputDir, dryRun
 }
 
-func setupCurrentDir() string {
+func getDir() string {
 	args := flag.Args()
 
-	if len(args) > 1 {
-		log.Fatal("Only 1 argument is supported")
-	}
+	fmt.Println(args)
 
 	rootDir, _ := os.Getwd()
 
-	if len(args) == 1 {
-		pathExists, err := pathExists(args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		if !pathExists {
-			log.Fatal("Path not exists")
-		} else {
-			rootDir = args[0]
-		}
+	if len(args) == 0 {
+		return rootDir
+	}
+
+	pathExists, err := pathExists(args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !pathExists {
+		log.Fatal("Path not exists")
+	} else {
+		rootDir = args[0]
 	}
 
 	return rootDir
 }
 
 func main() {
-
 	outputDir, dryRun := setupFlags()
+	dir := getDir()
 	fmt.Printf("Flags: outputDir=%s dryRun=%t\n", outputDir, dryRun)
+	fmt.Println(dir)
 
-	rootDir := setupCurrentDir()
-
-	albumSongs, err := readAlbums(rootDir)
+	albumSongs, err := readAlbums(dir)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	if len(*albumSongs) == 0 {
-		fmt.Printf("No mp3 files found in %s", rootDir)
+		fmt.Printf("No mp3 files found in %s", dir)
 		os.Exit(0)
 	}
 
-	err = renameSongs(*albumSongs, dryRun)
+	err = renameSongs(*albumSongs, dryRun, outputDir)
 	if err != nil {
+		fmt.Println("err")
 		fmt.Println(err)
 	}
 
 }
 
-func renameSongs(albumSongs map[string]Album, dry bool) *error {
+func renameSongs(albumSongs map[string]Album, dry bool, outputDir string) *error {
 
 	if !dry {
-		os.Mkdir("output", 0700)
+		os.Mkdir(outputDir, 0700)
 	}
-
 	for _, album := range albumSongs {
 
-		outputPath := filepath.Join("output", album.Name)
+		outputPath := filepath.Join(outputDir, album.Name)
 		if !dry {
 			os.Mkdir(outputPath, 0700)
-		}
-		coverPath := filepath.Join(outputPath, "cover.jpg")
-		err := saveCoverArt(album.Songs[0].Metadata, coverPath)
-		if err != nil {
-			return err
+			coverPath := filepath.Join(outputPath, "cover.jpg")
+			err := saveCoverArt(album.Songs[0].Metadata, coverPath)
+			if err != nil {
+				return err
+			}
 		}
 
 		for _, song := range album.Songs {
@@ -246,7 +245,6 @@ func saveCoverArt(m tag.Metadata, outputFilePath string) *error {
 	_, err = outputFile.Write(coverData.Data)
 	if err != nil {
 		err = fmt.Errorf("failed to write cover art: %w", err)
-
 		return &err
 	}
 
