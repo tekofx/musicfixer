@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mrz1836/go-sanitize"
 	perrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/metadata"
+	"github.com/tekofx/musicfixer/internal/utils"
 )
 
 func getSong(path string) (*Song, error, *perrors.SongMetadataError) {
@@ -59,19 +59,28 @@ func setNewFilePath(song Song, album Album) string {
 
 	if album.MultiDisk {
 		disc := song.Disc
-		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, sanitize.AlphaNumeric(song.Title, false))
+		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, utils.CleanFilename(song.Title))
+
 	} else {
-		newName = fmt.Sprintf("%s. %s.mp3", trackString, song.Title)
+		newName = fmt.Sprintf("%s. %s.mp3", trackString, utils.CleanFilename(song.Title))
 	}
 
-	return filepath.Join("output", album.Name, newName)
+	return filepath.Join("output", utils.CleanFilename(album.Name), newName)
 }
 
 func RenameSongs(albumSongs map[string]Album, outputDir string) error {
-	os.Mkdir(outputDir, 0700)
+	err := os.MkdirAll(outputDir, 0755)
+	if err != nil {
+		fmt.Printf("%d %s\n", 1, outputDir)
+		return err
+	}
 	for _, album := range albumSongs {
-		outputPath := filepath.Join(outputDir, sanitize.AlphaNumeric(album.Name, false))
-		os.Mkdir(outputPath, 0700)
+		outputPath := filepath.Dir(album.Songs[0].NewFilePath)
+		err = os.MkdirAll(outputPath, 0755)
+		if err != nil {
+			fmt.Printf("%d %s\n", 2, outputPath)
+			return err
+		}
 		coverPath := filepath.Join(outputPath, "cover.jpg")
 		err := saveCover(album.Songs[0], coverPath)
 		if err != nil {
@@ -79,8 +88,11 @@ func RenameSongs(albumSongs map[string]Album, outputDir string) error {
 		}
 
 		for _, song := range album.Songs {
+
 			err := os.Rename(song.FilePath, song.NewFilePath)
 			if err != nil {
+				fmt.Printf("%d\n %s\n %s\n\n", 3, song.FilePath, song.NewFilePath)
+
 				return err
 			}
 		}

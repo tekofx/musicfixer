@@ -21,6 +21,11 @@ func main() {
 		os.Exit(0)
 	}
 
+	if albumSongs == nil {
+		fmt.Printf("No songs found in %s", dir)
+		os.Exit(0)
+	}
+
 	model.SetNewFilePaths(albumSongs)
 
 	if dry {
