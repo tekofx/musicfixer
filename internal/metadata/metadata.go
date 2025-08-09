@@ -18,14 +18,14 @@ func checkMetadata(m tag.Metadata, path string) error {
 		return fmt.Errorf("Song %s does not have title", path)
 	}
 
+	if m.Picture() == nil {
+		return fmt.Errorf("Song %s does not have cover", path)
+	}
+
 	track, _ := m.Track()
-	disc, _ := m.Disc()
 
 	if track == 0 {
 		return fmt.Errorf("Song %s does not have track number", path)
-	}
-	if disc == 0 {
-		return fmt.Errorf("Song %s does not have disc number", path)
 	}
 
 	return nil

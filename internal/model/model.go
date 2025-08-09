@@ -17,6 +17,7 @@ func getSong(path string) (*Song, error) {
 
 	track, _ := m.Track()
 	disc, _ := m.Disc()
+
 	song := Song{
 		FilePath:  path,
 		Title:     m.Title(),
