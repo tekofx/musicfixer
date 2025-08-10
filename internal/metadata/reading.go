@@ -15,7 +15,7 @@ type Metadata struct {
 	Year        string
 	Track       int
 	Disc        *int
-	Picture     Picture
+	Picture     id3v2.PictureFrame
 }
 
 const (
@@ -24,11 +24,6 @@ const (
 	MetadataCover       = "APIC"
 	MetadataAlbumArtist = "TPE2"
 )
-
-type Picture struct {
-	Data      []byte
-	Extension string
-}
 
 func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 	songMetadataErrors := merrors.SongMetadataError{
@@ -123,19 +118,11 @@ func getDisc(metadata *id3v2.Tag) *int {
 
 }
 
-func getPicture(metadata *id3v2.Tag) Picture {
+func getPicture(metadata *id3v2.Tag) id3v2.PictureFrame {
 	picture := metadata.GetFrames("APIC")[0]
 	p := picture.(id3v2.PictureFrame)
 
-	ext := ".jpg"
-	if p.MimeType == "image/png" {
-		ext = ".png"
-	}
-
-	return Picture{
-		Data:      p.Picture,
-		Extension: ext,
-	}
+	return p
 
 }
 

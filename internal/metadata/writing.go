@@ -22,7 +22,7 @@ func (m Metadata) WriteToFile(filepath string) *merrors.MError {
 	}
 	tag.AddTextFrame(MetadataAlbumArtist, tag.DefaultEncoding(), m.AlbumArtist)
 
-	addCover(tag, m.Picture)
+	tag.AddAttachedPicture(m.Picture)
 
 	// Save tag to file
 	err = tag.Save()
@@ -30,19 +30,5 @@ func (m Metadata) WriteToFile(filepath string) *merrors.MError {
 		return merrors.NewWithArgs(merrors.UnexpectedError, err)
 	}
 
-	return nil
-}
-
-func addCover(tag *id3v2.Tag, picture Picture) *merrors.MError {
-
-	pictureFrame := id3v2.PictureFrame{
-		MimeType:    "image/jpeg",
-		PictureType: id3v2.PTFrontCover,
-		Encoding:    id3v2.EncodingUTF8,
-		Picture:     picture.Data,
-	}
-
-	// Add the PictureFrame to the tag
-	tag.AddAttachedPicture(pictureFrame)
 	return nil
 }

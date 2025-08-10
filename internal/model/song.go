@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/tekofx/musicfixer/internal/metadata"
+	"github.com/bogem/id3v2"
 )
 
 // Song represents a music file with metadata
@@ -11,6 +11,6 @@ type Song struct {
 	Track       int
 	Disc        *int
 	Title       string
-	Picture     metadata.Picture
+	Picture     *id3v2.PictureFrame
 	AlbumName   string
 }

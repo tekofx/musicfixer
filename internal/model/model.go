@@ -26,7 +26,7 @@ func getSong(path string) (*Song, *merrors.MError, *merrors.SongMetadataError) {
 		Title:     m.Title,
 		Track:     m.Track,
 		Disc:      m.Disc,
-		Picture:   m.Picture,
+		Picture:   &m.Picture,
 		AlbumName: m.Album,
 	}
 
@@ -155,11 +155,8 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 func saveCover(song Song, outputFilePath string) *merrors.MError {
 	var err error
 
-	// Retrieve the cover art data
-	songPicture := song.Picture
-
 	// Check if cover art exists
-	if len(songPicture.Data) == 0 {
+	if song.Picture != nil {
 		return merrors.New(merrors.MissingCover, "No cover found to save")
 
 	}
@@ -172,7 +169,7 @@ func saveCover(song Song, outputFilePath string) *merrors.MError {
 	defer outputFile.Close()
 
 	// Write the cover art data to the file
-	_, err = outputFile.Write(songPicture.Data)
+	_, err = outputFile.Write(song.Picture.Picture)
 	if err != nil {
 		err = fmt.Errorf("failed to write cover art: %w", err)
 		return merrors.NewWithArgs(merrors.CouldNotWriteToFile, "Failed to write cover to file:", err)

@@ -1,9 +1,11 @@
 package tests
 
 import (
+	"log"
 	"os"
 	"testing"
 
+	"github.com/bogem/id3v2"
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/metadata"
 )
@@ -60,13 +62,27 @@ func testMissingMetadata(t *testing.T) {
 }
 
 func testWriteMetadata(t *testing.T) {
+
+	tag, err := id3v2.Open("songs/empty_tags.mp3", id3v2.Options{Parse: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tag.DeleteAllFrames()
+	// Write tag to file.mp3
+	if err = tag.Save(); err != nil {
+		log.Fatal("Error while saving a tag: ", err)
+	}
+
 	// Read the image file
 	imageData, _ := os.ReadFile("test.jpg")
 
 	m := metadata.Metadata{
 		Track: 4,
-		Picture: metadata.Picture{
-			Data: imageData,
+		Picture: id3v2.PictureFrame{
+			Picture:     imageData,
+			PictureType: id3v2.PTFrontCover,
+			Encoding:    id3v2.EncodingISO,
 		},
 	}
 
