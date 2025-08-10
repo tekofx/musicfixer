@@ -64,18 +64,16 @@ func setNewFilePath(song Song, album Album) string {
 	return filepath.Join("output", utils.CleanFilename(album.Name), newName)
 }
 
-func RenameSongs(albumSongs map[string]Album, outputDir string) error {
+func RenameSongs(albumSongs map[string]Album, outputDir string) *merrors.MError {
 	err := os.MkdirAll(outputDir, 0755)
 	if err != nil {
-		fmt.Printf("%d %s\n", 1, outputDir)
-		return err
+		return merrors.NewWithArgs(merrors.CouldNotCreateDir, "Could not create dir", outputDir, err)
 	}
 	for _, album := range albumSongs {
 		outputPath := filepath.Dir(album.Songs[0].NewFilePath)
 		err = os.MkdirAll(outputPath, 0755)
 		if err != nil {
-			fmt.Printf("%d %s\n", 2, outputPath)
-			return err
+			return merrors.NewWithArgs(merrors.CouldNotCreateDir, "Could not create dir", outputPath, err)
 		}
 		coverPath := filepath.Join(outputPath, "cover.jpg")
 		err := saveCover(album.Songs[0], coverPath)
@@ -87,9 +85,7 @@ func RenameSongs(albumSongs map[string]Album, outputDir string) error {
 
 			err := os.Rename(song.FilePath, song.NewFilePath)
 			if err != nil {
-				fmt.Printf("%d\n %s\n %s\n\n", 3, song.FilePath, song.NewFilePath)
-
-				return err
+				return merrors.NewWithArgs(merrors.CouldNotRenameFile, "Could not rename file", song.FilePath, song.NewFilePath, err)
 			}
 		}
 	}
@@ -104,8 +100,9 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 	var merr *merrors.MError
 
 	err := filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
+
 		if err != nil {
-			return err
+			fmt.Println(1)
 		}
 
 		// Skip directories
@@ -118,7 +115,7 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 			return nil
 		}
 
-		song, err2, songMetadataErrors := getSong(path)
+		song, err2, songMetadataErrors := getSong("a")
 		if err2 != nil {
 			merr = err2
 			return filepath.SkipAll
@@ -145,6 +142,10 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 	})
 
 	if err != nil {
+		fmt.Println(1)
+	}
+
+	if merr != nil {
 		return nil, merr, nil
 	}
 
@@ -153,14 +154,13 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 	}
 
 	if len(albumSongs) == 0 {
-		err = fmt.Errorf("Not mp3 files found in %s", searchDir)
 		return nil, merrors.NewWithArgs(merrors.MP3FilesNotFound, "Not mp3 files found in", searchDir), nil
 	}
 
 	return &albumSongs, nil, nil
 }
 
-func saveCover(song Song, outputFilePath string) error {
+func saveCover(song Song, outputFilePath string) *merrors.MError {
 	var err error
 
 	// Retrieve the cover art data
@@ -168,16 +168,14 @@ func saveCover(song Song, outputFilePath string) error {
 
 	// Check if cover art exists
 	if len(songPicture.Data) == 0 {
-		err = fmt.Errorf("no cover art found")
+		return merrors.New(merrors.MissingCover, "No cover found to save")
 
-		return err
 	}
 
 	// Create the output file
 	outputFile, err := os.Create(outputFilePath)
 	if err != nil {
-		err = fmt.Errorf("failed to create output file: %w", err)
-		return err
+		return merrors.NewWithArgs(merrors.CouldNotCreateFile, "Failed to create cover file:", err)
 	}
 	defer outputFile.Close()
 
@@ -185,7 +183,7 @@ func saveCover(song Song, outputFilePath string) error {
 	_, err = outputFile.Write(songPicture.Data)
 	if err != nil {
 		err = fmt.Errorf("failed to write cover art: %w", err)
-		return err
+		return merrors.NewWithArgs(merrors.CouldNotWriteToFile, "Failed to write cover to file:", err)
 	}
 
 	return nil

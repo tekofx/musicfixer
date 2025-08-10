@@ -3,14 +3,14 @@ package flags
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
+	merrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/model"
 )
 
-func pathExists(path string) (bool, error) {
+func pathExists(path string) (bool, *merrors.MError) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil // Path exists
@@ -18,11 +18,10 @@ func pathExists(path string) (bool, error) {
 	if os.IsNotExist(err) {
 		return false, nil // Path does not exist
 	}
-	return false, err // Some other error (e.g., permission denied)
+	return false, merrors.NewWithArgs(merrors.UnexpectedError, err) // Some other error (e.g., permission denied)
 }
 
 func SetupFlags() (string, bool, bool) {
-
 	var outputDir string
 	outputDir = "output"
 	flag.StringVar(&outputDir, "output", "output", "Output directory")
@@ -49,25 +48,25 @@ func SetupFlags() (string, bool, bool) {
 	return outputDir, dryRun, removeOriginalFolder
 }
 
-func GetDir() string {
+func GetDir() (*string, *merrors.MError) {
 	args := flag.Args()
 	rootDir, _ := os.Getwd()
 
 	if len(args) == 0 {
-		return rootDir
+		return &rootDir, nil
 	}
 
-	pathExists, err := pathExists(args[0])
-	if err != nil {
-		log.Fatal(err)
+	pathExists, merr := pathExists(args[0])
+	if merr != nil {
+		return nil, merr
 	}
 	if !pathExists {
-		log.Fatal("Path not exists")
+		return nil, merrors.New(merrors.PathNotExists, "Path not exists")
 	} else {
 		rootDir = args[0]
 	}
 
-	return rootDir
+	return &rootDir, nil
 }
 
 func DryRun(albumSongs *map[string]model.Album, outputDir string) {

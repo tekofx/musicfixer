@@ -24,6 +24,10 @@ type MError struct {
 	Message string
 }
 
+func (m MError) Print() {
+	fmt.Println(m.Message)
+}
+
 func Unexpected(message string) *MError {
 	return &MError{
 		Code:    UnexpectedError,
@@ -66,6 +70,12 @@ const (
 	MissingCover       = 16
 
 	// FilesystemError 100-199
-	MP3FilesNotFound  = 100
-	CouldNotOpenFile = 101
+	MP3FilesNotFound    = 100
+	CouldNotOpenFile    = 101
+	CouldNotCreateDir   = 102
+	CouldNotCreateFile  = 103
+	CouldNotWriteToFile = 104
+	CouldNotRenameFile  = 105
+	CouldNotDeleteDirs  = 106
+	PathNotExists       = 107
 )
