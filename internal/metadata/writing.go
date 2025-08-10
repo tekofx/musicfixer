@@ -15,7 +15,14 @@ func (m Metadata) WriteToFile(filepath string) *merrors.MError {
 		return merrors.NewWithArgs(merrors.UnexpectedError, err)
 	}
 
+	// Write tags
 	tag.AddTextFrame(MetadataTrack, tag.DefaultEncoding(), strconv.Itoa(m.Track))
+	if m.Disc != nil {
+		tag.AddTextFrame(MetadataDisc, tag.DefaultEncoding(), strconv.Itoa(*m.Disc))
+	}
+	tag.AddTextFrame(MetadataAlbumArtist, tag.DefaultEncoding(), m.AlbumArtist)
+
+	// Save tag to file
 	err = tag.Save()
 	if err != nil {
 		return merrors.NewWithArgs(merrors.UnexpectedError, err)
