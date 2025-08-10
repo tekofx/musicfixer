@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/bogem/id3v2"
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
@@ -14,6 +15,19 @@ func Assert(t *testing.T, predicate bool, failMessage string) {
 		fmt.Println("Test failed:", failMessage)
 		t.FailNow()
 	}
+}
+
+func removeMetadataFromFile(filepath string) *merrors.MError {
+	tag, err := id3v2.Open("songs/empty_tags.mp3", id3v2.Options{Parse: true})
+	if err != nil {
+		return merrors.NewWithArgs(merrors.CouldNotOpenFile, err)
+	}
+
+	tag.DeleteAllFrames()
+	if err = tag.Save(); err != nil {
+		return merrors.NewWithArgs(merrors.CouldNotSaveMetadataToFile, err)
+	}
+	return nil
 }
 
 func AssertMError(t *testing.T, error *merrors.MError, code merrors.MErrorCode, message string) {

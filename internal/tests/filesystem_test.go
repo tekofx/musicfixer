@@ -18,7 +18,7 @@ func TestFilesystem(t *testing.T) {
 
 }
 func testOpenFile(t *testing.T) {
-	_, merr, _ := metadata.GetMetadata("songs/correct_metadata.mp3")
+	_, merr, _ := metadata.GetMetadata("files/correct_metadata.mp3")
 	Assert(t, merr == nil, "Could not open file")
 
 	_, merr, _ = metadata.GetMetadata("a.mp3")

@@ -62,14 +62,15 @@ const (
 	WrongFlagsPosition MErrorCode = 1
 	FlagNotExists      MErrorCode = 2
 
-	// Missing Metadata 10-99
-	MissingTitle       MErrorCode = 10
-	MissingArtist      MErrorCode = 11
-	MissingTrackNumber MErrorCode = 12
-	MissingAlbum       MErrorCode = 13
-	MissingAlbumArtist MErrorCode = 14
-	MissingYear        MErrorCode = 15
-	MissingCover       MErrorCode = 16
+	// Metadata 10-99
+	MissingTitle               MErrorCode = 10
+	MissingArtist              MErrorCode = 11
+	MissingTrackNumber         MErrorCode = 12
+	MissingAlbum               MErrorCode = 13
+	MissingAlbumArtist         MErrorCode = 14
+	MissingYear                MErrorCode = 15
+	MissingCover               MErrorCode = 16
+	CouldNotSaveMetadataToFile MErrorCode = 17
 
 	// FilesystemError 100-199
 	MP3FilesNotFound    MErrorCode = 100
