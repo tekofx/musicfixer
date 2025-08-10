@@ -115,7 +115,7 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 			return nil
 		}
 
-		song, err2, songMetadataErrors := getSong("a")
+		song, err2, songMetadataErrors := getSong(path)
 		if err2 != nil {
 			merr = err2
 			return filepath.SkipAll
