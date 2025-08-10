@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/model"
@@ -21,7 +22,7 @@ func pathExists(path string) (bool, *merrors.MError) {
 	return false, merrors.NewWithArgs(merrors.UnexpectedError, err) // Some other error (e.g., permission denied)
 }
 
-func SetupFlags() (string, bool, bool) {
+func SetupFlags() (string, bool, bool, *merrors.MError) {
 	var outputDir string
 	outputDir = "output"
 	flag.StringVar(&outputDir, "output", "output", "Output directory")
@@ -45,7 +46,12 @@ func SetupFlags() (string, bool, bool) {
 	}
 
 	flag.Parse()
-	return outputDir, dryRun, removeOriginalFolder
+
+	if len(flag.Args()) > 1 {
+		return "", false, false, merrors.NewWithArgs(merrors.WrongFlagsPosition, "Flags go before directory: musicfixer", strings.Join(flag.Args()[1:], " "), flag.Arg(0))
+	}
+
+	return outputDir, dryRun, removeOriginalFolder, nil
 }
 
 func GetDir() (*string, *merrors.MError) {

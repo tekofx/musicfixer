@@ -58,7 +58,9 @@ type MErrorCode int
 const (
 
 	// Common errors
-	UnexpectedError = 0
+	UnexpectedError    = 0
+	WrongFlagsPosition = 1
+	FlagNotExists      = 2
 
 	// Missing Metadata 10-99
 	MissingTitle       = 10

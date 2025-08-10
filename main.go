@@ -10,9 +10,12 @@ import (
 )
 
 func main() {
-	outputDir, dry, removeOriginalFolder := flags.SetupFlags()
+	outputDir, dry, removeOriginalFolder, merr := flags.SetupFlags()
+	if merr != nil {
+		merr.Print()
+		os.Exit(0)
+	}
 	dir, merr := flags.GetDir()
-
 	if merr != nil {
 		merr.Print()
 		os.Exit(0)
