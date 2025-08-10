@@ -35,9 +35,4 @@ func testReadAlbum(t *testing.T) {
 	Assert(t, albums == nil, "Albumn not nil")
 	Assert(t, len(metaErrors) == 0, "Metaerrors len != 6")
 	AssertMError(t, merror, merrors.MP3FilesNotFound, "Not mp3 files found in test")
-
-}
-
-func testGetDir(t *testing.T) {
-
 }

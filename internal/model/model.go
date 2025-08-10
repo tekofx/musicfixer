@@ -99,11 +99,7 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 	var perrors []merrors.SongMetadataError
 	var merr *merrors.MError
 
-	err := filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
-
-		if err != nil {
-			fmt.Println(1)
-		}
+	filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
 
 		// Skip directories
 		if info.IsDir() {
@@ -140,10 +136,6 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 
 		return nil
 	})
-
-	if err != nil {
-		fmt.Println(1)
-	}
 
 	if merr != nil {
 		return nil, merr, nil
