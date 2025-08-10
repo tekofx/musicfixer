@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
 // Check a condition. If the condition is false, the assert fails and shows failMessage
@@ -13,6 +15,15 @@ func Assert(t *testing.T, predicate bool, failMessage string) {
 		t.FailNow()
 	}
 }
+
+func AssertMError(t *testing.T, error *merrors.MError, code merrors.MErrorCode, message string) {
+	if nil == error {
+		fmt.Println("Test failed because error is empty.")
+		t.FailNow()
+	}
+	Assert(t, error.Code == code && error.Message == message, fmt.Sprintf("\n[%d - %s] \nwas expected but \n[%d - %s] \nwas found\n", code, message, error.Code, error.Message))
+}
+
 func generateMp3File() string {
 	// Create a blank (silent) MP3 file
 	file, err := os.Create("blank.mp3")

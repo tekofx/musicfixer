@@ -22,7 +22,8 @@ func testOpenFile(t *testing.T) {
 	Assert(t, merr == nil, "Could not open file")
 
 	_, merr, _ = metadata.GetMetadata("a.mp3")
-	Assert(t, merr.Code == merrors.CouldNotOpenFile, "Could not open file")
+	AssertMError(t, merr, merrors.CouldNotOpenFile, "Error while opening mp3 file: open a.mp3: no such file or directory")
+
 }
 
 func testGetCorrectMetadata(t *testing.T) {

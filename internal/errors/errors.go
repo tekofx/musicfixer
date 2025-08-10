@@ -58,26 +58,26 @@ type MErrorCode int
 const (
 
 	// Common errors
-	UnexpectedError    = 0
-	WrongFlagsPosition = 1
-	FlagNotExists      = 2
+	UnexpectedError    MErrorCode = 0
+	WrongFlagsPosition MErrorCode = 1
+	FlagNotExists      MErrorCode = 2
 
 	// Missing Metadata 10-99
-	MissingTitle       = 10
-	MissingArtist      = 11
-	MissingTrackNumber = 12
-	MissingAlbum       = 13
-	MissingAlbumArtist = 14
-	MissingYear        = 15
-	MissingCover       = 16
+	MissingTitle       MErrorCode = 10
+	MissingArtist      MErrorCode = 11
+	MissingTrackNumber MErrorCode = 12
+	MissingAlbum       MErrorCode = 13
+	MissingAlbumArtist MErrorCode = 14
+	MissingYear        MErrorCode = 15
+	MissingCover       MErrorCode = 16
 
 	// FilesystemError 100-199
-	MP3FilesNotFound    = 100
-	CouldNotOpenFile    = 101
-	CouldNotCreateDir   = 102
-	CouldNotCreateFile  = 103
-	CouldNotWriteToFile = 104
-	CouldNotRenameFile  = 105
-	CouldNotDeleteDirs  = 106
-	PathNotExists       = 107
+	MP3FilesNotFound    MErrorCode = 100
+	CouldNotOpenFile    MErrorCode = 101
+	CouldNotCreateDir   MErrorCode = 102
+	CouldNotCreateFile  MErrorCode = 103
+	CouldNotWriteToFile MErrorCode = 104
+	CouldNotRenameFile  MErrorCode = 105
+	CouldNotDeleteDirs  MErrorCode = 106
+	PathNotExists       MErrorCode = 107
 )
