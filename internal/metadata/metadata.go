@@ -28,6 +28,10 @@ func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 		SongPath: path,
 	}
 
+	if m.Artist() == "" {
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingArtist, "Missing Artist"))
+	}
+
 	if m.Album() == "" {
 		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbum, "Missing Album"))
 	}
