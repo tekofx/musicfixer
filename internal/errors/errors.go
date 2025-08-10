@@ -13,7 +13,7 @@ type SongMetadataError struct {
 func (e SongMetadataError) Error() string {
 	msg := ""
 	for _, error := range e.Errors {
-		msg += fmt.Sprintf(" - %s\n", error)
+		msg += fmt.Sprintf(" - %s\n", error.Message)
 	}
 
 	return fmt.Sprintf("Song %s misses: \n%s", e.SongPath, msg)

@@ -9,12 +9,13 @@ import (
 )
 
 type Metadata struct {
-	Title   string
-	Album   string
-	Year    string
-	Track   int
-	Disc    *int
-	Picture Picture
+	Title       string
+	Album       string
+	AlbumArtist string
+	Year        string
+	Track       int
+	Disc        *int
+	Picture     Picture
 }
 
 type Picture struct {
@@ -28,19 +29,28 @@ func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 	}
 
 	if m.Album() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbum, ""))
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbum, "Missing Album"))
 	}
 
 	if m.Title() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTitle, ""))
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTitle, "Missing Title"))
 	}
 
 	if getTrack(m) == -1 {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTrackNumber, ""))
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTrackNumber, "Missing Track Number"))
+	}
+
+	if getAlbumArtist(m) == "" {
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbumArtist, "Missing Album Artist"))
+	}
+
+	if m.Year() == "" {
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingYear, "Missing Year"))
+
 	}
 
 	if len(m.GetFrames("APIC")) == 0 {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingCover, ""))
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingCover, "Missing Cover"))
 	}
 
 	if len(songMetadataErrors.Errors) > 0 {
@@ -63,12 +73,13 @@ func GetMetadata(path string) (*Metadata, *merrors.MError, *merrors.SongMetadata
 	}
 
 	metadata := Metadata{
-		Title:   tag.Title(),
-		Album:   tag.Album(),
-		Year:    tag.Year(),
-		Track:   getTrack(tag),
-		Disc:    getDisc(tag),
-		Picture: getPicture(tag),
+		Title:       tag.Title(),
+		Album:       tag.Album(),
+		Year:        tag.Year(),
+		AlbumArtist: getAlbumArtist(tag),
+		Track:       getTrack(tag),
+		Disc:        getDisc(tag),
+		Picture:     getPicture(tag),
 	}
 
 	return &metadata, nil, nil
@@ -115,4 +126,8 @@ func getPicture(metadata *id3v2.Tag) Picture {
 		Extension: ext,
 	}
 
+}
+
+func getAlbumArtist(metadata *id3v2.Tag) string {
+	return metadata.GetTextFrame("TPE2").Text
 }
