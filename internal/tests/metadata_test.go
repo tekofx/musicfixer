@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	merrors "github.com/tekofx/musicfixer/internal/errors"
@@ -14,12 +13,12 @@ func TestReadMetadata(t *testing.T) {
 	t.Run("Open file", testOpenFile)
 
 	t.Run("Get Correct Metadata", testGetCorrectMetadata)
-	t.Run("Missing metadata", testGetIncorrectMetadata)
+	t.Run("Missing metadata", testMissingMetadata)
 
 }
 
 func testOpenFile(t *testing.T) {
-	_, merr, _ := metadata.GetMetadata("correct_metadata.mp3")
+	_, merr, _ := metadata.GetMetadata("songs/correct_metadata.mp3")
 	Assert(t, merr == nil, "Could not open file")
 
 	_, merr, _ = metadata.GetMetadata("a.mp3")
@@ -27,15 +26,41 @@ func testOpenFile(t *testing.T) {
 }
 
 func testGetCorrectMetadata(t *testing.T) {
-	_, err, merrors := metadata.GetMetadata("correct_metadata.mp3")
-	fmt.Println(err)
-	Assert(t, err == nil, "Error")
+	_, merr, merrors := metadata.GetMetadata("songs/correct_metadata.mp3")
+	Assert(t, merr == nil, "Error")
 	Assert(t, merrors == nil, "Perror")
 }
 
-func testGetIncorrectMetadata(t *testing.T) {
-	_, err, merrors := metadata.GetMetadata("missing_title.mp3")
+func testMissingMetadata(t *testing.T) {
+	// Missing title
+	_, merr, metaErrors := metadata.GetMetadata("songs/missing_title.mp3")
+	Assert(t, merr == nil, "Merror not nil")
+	Assert(t, metaErrors != nil, "Metaerror is nil")
+	Assert(t, metaErrors.Errors[0].Code == merrors.MissingTitle, "Missing title")
 
-	Assert(t, err == nil, "Error")
-	Assert(t, merrors != nil, "Perror")
+	// Missing artist
+	_, merr, metaErrors = metadata.GetMetadata("songs/missing_artist.mp3")
+	Assert(t, merr == nil, "Merror not nil")
+	Assert(t, metaErrors != nil, "Metaerror is nil")
+	Assert(t, metaErrors.Errors[0].Code == merrors.MissingArtist, "Missing artist")
+
+	// Missing album
+	_, merr, metaErrors = metadata.GetMetadata("songs/missing_album.mp3")
+	Assert(t, merr == nil, "Merror not nil")
+	Assert(t, metaErrors.Errors[0].Code == merrors.MissingAlbum, "Missing Album")
+
+	// Missing album artist
+	_, merr, metaErrors = metadata.GetMetadata("songs/missing_album_artist.mp3")
+	Assert(t, merr == nil, "Merror not nil")
+	Assert(t, metaErrors.Errors[0].Code == merrors.MissingAlbumArtist, "Missing Album Artist")
+
+	// Missing year
+	_, merr, metaErrors = metadata.GetMetadata("songs/missing_year.mp3")
+	Assert(t, merr == nil, "Merror not nil")
+	Assert(t, metaErrors.Errors[0].Code == merrors.MissingYear, "Missing year")
+
+	// Missing cover
+	_, merr, metaErrors = metadata.GetMetadata("songs/missing_cover.mp3")
+	Assert(t, merr == nil, "Merror not nil")
+	Assert(t, metaErrors.Errors[0].Code == merrors.MissingCover, "Missing Cover")
 }
