@@ -2,6 +2,7 @@ package merrors
 
 import (
 	"fmt"
+	"strings"
 )
 
 type SongMetadataError struct {
@@ -37,6 +38,17 @@ func New(code MErrorCode, message string) *MError {
 	}
 }
 
+func NewWithArgs(code MErrorCode, messages ...any) *MError {
+	var parts []string
+	for _, arg := range messages {
+		parts = append(parts, fmt.Sprint(arg))
+	}
+	return &MError{
+		Code:    code,
+		Message: strings.Join(parts, " "),
+	}
+}
+
 type MErrorCode int
 
 const (
@@ -44,7 +56,7 @@ const (
 	// Common errors
 	UnexpectedError = 0
 
-	// Missing Metadata
+	// Missing Metadata 10-99
 	MissingTitle       = 10
 	MissingArtist      = 11
 	MissingTrackNumber = 12
@@ -52,4 +64,8 @@ const (
 	MissingAlbumArtist = 14
 	MissingYear        = 15
 	MissingCover       = 16
+
+	// FilesystemError 100-199
+	MP3FilesNotFound  = 100
+	CouldNotOpenFile = 101
 )

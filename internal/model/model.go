@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	perrors "github.com/tekofx/musicfixer/internal/errors"
+	merrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/metadata"
 	"github.com/tekofx/musicfixer/internal/utils"
 )
 
-func getSong(path string) (*Song, error, *perrors.SongMetadataError) {
+func getSong(path string) (*Song, *merrors.MError, *merrors.SongMetadataError) {
 
 	m, err, songMetadataErrors := metadata.GetMetadata(path)
 	if err != nil {
@@ -96,11 +96,12 @@ func RenameSongs(albumSongs map[string]Album, outputDir string) error {
 	return nil
 }
 
-func ReadAlbums(searchDir string) (*map[string]Album, []perrors.SongMetadataError) {
+func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors.SongMetadataError) {
 	// Initialize a map to group songs by album
 	albumSongs := make(map[string]Album)
 
-	var perrors []perrors.SongMetadataError
+	var perrors []merrors.SongMetadataError
+	var merr *merrors.MError
 
 	err := filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -117,9 +118,10 @@ func ReadAlbums(searchDir string) (*map[string]Album, []perrors.SongMetadataErro
 			return nil
 		}
 
-		song, err, songMetadataErrors := getSong(path)
-		if err != nil {
-			return nil
+		song, err2, songMetadataErrors := getSong(path)
+		if err2 != nil {
+			merr = err2
+			return filepath.SkipAll
 		}
 
 		if songMetadataErrors != nil {
@@ -131,7 +133,7 @@ func ReadAlbums(searchDir string) (*map[string]Album, []perrors.SongMetadataErro
 		album.Name = song.AlbumName
 		album.Songs = append(album.Songs, *song)
 		if !album.MultiDisk {
-			if song.Disc > 1 {
+			if song.Disc != nil && *song.Disc > 1 {
 				album.MultiDisk = true
 			}
 		}
@@ -143,19 +145,19 @@ func ReadAlbums(searchDir string) (*map[string]Album, []perrors.SongMetadataErro
 	})
 
 	if err != nil {
-		return nil, nil
+		return nil, merr, nil
 	}
 
 	if len(perrors) > 0 {
-		return nil, perrors
+		return nil, nil, perrors
 	}
 
 	if len(albumSongs) == 0 {
 		err = fmt.Errorf("Not mp3 files found in %s", searchDir)
-		return nil, nil
+		return nil, merrors.NewWithArgs(merrors.MP3FilesNotFound, "Not mp3 files found in", searchDir), nil
 	}
 
-	return &albumSongs, nil
+	return &albumSongs, nil, nil
 }
 
 func saveCover(song Song, outputFilePath string) error {

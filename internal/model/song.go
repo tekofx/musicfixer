@@ -9,7 +9,7 @@ type Song struct {
 	FilePath    string
 	NewFilePath string
 	Track       int
-	Disc        int
+	Disc        *int
 	Title       string
 	Picture     metadata.Picture
 	AlbumName   string

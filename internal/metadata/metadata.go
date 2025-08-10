@@ -1,7 +1,6 @@
 package metadata
 
 import (
-	"log"
 	"strconv"
 	"strings"
 
@@ -51,10 +50,10 @@ func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 
 }
 
-func GetMetadata(path string) (*Metadata, error, *merrors.SongMetadataError) {
+func GetMetadata(path string) (*Metadata, *merrors.MError, *merrors.SongMetadataError) {
 	tag, err := id3v2.Open(path, id3v2.Options{Parse: true})
 	if err != nil {
-		log.Fatal("Error while opening mp3 file: ", err)
+		return nil, merrors.NewWithArgs(merrors.CouldNotOpenFile, "Error while opening mp3 file: ", err), nil
 	}
 	defer tag.Close()
 
