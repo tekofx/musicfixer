@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"os"
 	"testing"
 
 	merrors "github.com/tekofx/musicfixer/internal/errors"
@@ -59,8 +60,14 @@ func testMissingMetadata(t *testing.T) {
 }
 
 func testWriteMetadata(t *testing.T) {
+	// Read the image file
+	imageData, _ := os.ReadFile("test.jpg")
+
 	m := metadata.Metadata{
 		Track: 4,
+		Picture: metadata.Picture{
+			Data: imageData,
+		},
 	}
 
 	merror := m.WriteToFile("songs/empty_tags.mp3")
