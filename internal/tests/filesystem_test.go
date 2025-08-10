@@ -8,21 +8,12 @@ import (
 	"github.com/tekofx/musicfixer/internal/model"
 )
 
-func tearDown() {
-	os.RemoveAll("test")
-}
-
-func setup() {
-	os.Mkdir("test", 0755)
-}
-
 func TestFilesystem(t *testing.T) {
-	setup()
 
 	// Filesystem
+	os.Mkdir("test", 0755)
 	t.Run("Open file", testReadAlbum)
-
-	tearDown()
+	os.RemoveAll("test")
 
 }
 
