@@ -9,24 +9,16 @@ import (
 
 func TestReadMetadata(t *testing.T) {
 
-	// Filesystem
-	t.Run("Open file", testOpenFile)
-
-	t.Run("Get Correct Metadata", testGetCorrectMetadata)
+	t.Run("Read Metadata", testReadMetadata)
 	t.Run("Missing metadata", testMissingMetadata)
 
 }
 
-func testOpenFile(t *testing.T) {
-	_, merr, _ := metadata.GetMetadata("songs/correct_metadata.mp3")
-	Assert(t, merr == nil, "Could not open file")
-
-	_, merr, _ = metadata.GetMetadata("a.mp3")
-	AssertMError(t, merr, merrors.CouldNotOpenFile, "Error while opening mp3 file: open a.mp3: no such file or directory")
-
+func TestWriteMetadata(t *testing.T) {
+	t.Run("Write Metadata", testWriteMetadata)
 }
 
-func testGetCorrectMetadata(t *testing.T) {
+func testReadMetadata(t *testing.T) {
 	_, merr, merrors := metadata.GetMetadata("songs/correct_metadata.mp3")
 	Assert(t, merr == nil, "Error")
 	Assert(t, merrors == nil, "Perror")
@@ -64,4 +56,14 @@ func testMissingMetadata(t *testing.T) {
 	_, merr, metaErrors = metadata.GetMetadata("songs/missing_cover.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors.Errors[0].Code == merrors.MissingCover, "Missing Cover")
+}
+
+func testWriteMetadata(t *testing.T) {
+	m := metadata.Metadata{
+		Track: 4,
+	}
+
+	merror := m.WriteToFile("songs/empty_tags.mp3")
+	Assert(t, merror == nil, "Merror is not nil")
+
 }

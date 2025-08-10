@@ -18,6 +18,13 @@ type Metadata struct {
 	Picture     Picture
 }
 
+const (
+	MetadataTrack       = "TRCK"
+	MetadataDisc        = "TPOS"
+	MetadataCover       = "APIC"
+	MetadataAlbumArtist = "TPE2"
+)
+
 type Picture struct {
 	Data      []byte
 	Extension string
