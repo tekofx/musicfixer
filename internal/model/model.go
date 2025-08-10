@@ -18,20 +18,16 @@ func getSong(path string) (*Song, error, *perrors.SongMetadataError) {
 	}
 
 	if songMetadataErrors != nil {
-
 		return nil, nil, songMetadataErrors
 	}
 
-	track, _ := m.Track()
-	disc, _ := m.Disc()
-
 	song := Song{
 		FilePath:  path,
-		Title:     m.Title(),
-		Track:     track,
-		Disc:      disc,
-		Picture:   *m.Picture(),
-		AlbumName: m.Album(),
+		Title:     m.Title,
+		Track:     m.Track,
+		Disc:      m.Disc,
+		Picture:   m.Picture,
+		AlbumName: m.Album,
 	}
 
 	return &song, nil, nil

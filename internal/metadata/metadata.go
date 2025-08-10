@@ -2,18 +2,19 @@ package metadata
 
 import (
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/bogem/id3v2"
-	perrors "github.com/tekofx/musicfixer/internal/errors"
+	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
 type Metadata struct {
 	Title   string
 	Album   string
 	Year    string
-	Track   string
-	Disc    string
+	Track   int
+	Disc    *int
 	Picture Picture
 }
 
@@ -22,25 +23,25 @@ type Picture struct {
 	Extension string
 }
 
-func checkMetadata(m *id3v2.Tag, path string) *perrors.SongMetadataError {
-	songMetadataErrors := perrors.SongMetadataError{
+func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
+	songMetadataErrors := merrors.SongMetadataError{
 		SongPath: path,
 	}
 
 	if m.Album() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, "Album Name")
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbum, ""))
 	}
 
 	if m.Title() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, "Song title")
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTitle, ""))
 	}
 
-	if getTrack(m) == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, "Track number")
+	if getTrack(m) == -1 {
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTrackNumber, ""))
 	}
 
 	if len(m.GetFrames("APIC")) == 0 {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, "Cover")
+		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingCover, ""))
 	}
 
 	if len(songMetadataErrors.Errors) > 0 {
@@ -50,7 +51,7 @@ func checkMetadata(m *id3v2.Tag, path string) *perrors.SongMetadataError {
 
 }
 
-func GetMetadata(path string) (*Metadata, error, *perrors.SongMetadataError) {
+func GetMetadata(path string) (*Metadata, error, *merrors.SongMetadataError) {
 	tag, err := id3v2.Open(path, id3v2.Options{Parse: true})
 	if err != nil {
 		log.Fatal("Error while opening mp3 file: ", err)
@@ -75,12 +76,30 @@ func GetMetadata(path string) (*Metadata, error, *perrors.SongMetadataError) {
 
 }
 
-func getTrack(metadata *id3v2.Tag) string {
-	return strings.Split(metadata.GetTextFrame("TRCK").Text, "/")[0]
+func getTrack(metadata *id3v2.Tag) int {
+
+	str := strings.Split(metadata.GetTextFrame("TRCK").Text, "/")[0]
+
+	if str == "" {
+		return -1
+	}
+
+	num, _ := strconv.Atoi(str)
+
+	return num
 }
 
-func getDisc(metadata *id3v2.Tag) string {
-	return strings.Split(metadata.GetTextFrame("TPOS").Text, "/")[0]
+func getDisc(metadata *id3v2.Tag) *int {
+	str := strings.Split(metadata.GetTextFrame("TPOS").Text, "/")[0]
+
+	if str == "" {
+		return nil
+	}
+
+	num, _ := strconv.Atoi(str)
+
+	return &num
+
 }
 
 func getPicture(metadata *id3v2.Tag) Picture {

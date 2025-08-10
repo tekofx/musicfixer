@@ -14,15 +14,15 @@ func TestReadMetadata(t *testing.T) {
 }
 
 func testGetCorrectMetadata(t *testing.T) {
-	_, err, perrors := metadata.GetMetadata("correct_metadata.mp3")
+	_, err, merrors := metadata.GetMetadata("correct_metadata.mp3")
 	fmt.Println(err)
 	Assert(t, err == nil, "Error")
-	Assert(t, perrors == nil, "Perror")
+	Assert(t, merrors == nil, "Perror")
 }
 
 func testGetIncorrectMetadata(t *testing.T) {
-	_, err, perrors := metadata.GetMetadata("missing_title.mp3")
+	_, err, merrors := metadata.GetMetadata("missing_title.mp3")
 
 	Assert(t, err == nil, "Error")
-	Assert(t, perrors != nil, "Perror")
+	Assert(t, merrors != nil, "Perror")
 }

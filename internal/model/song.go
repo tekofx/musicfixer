@@ -1,6 +1,8 @@
 package model
 
-import "github.com/dhowden/tag"
+import (
+	"github.com/tekofx/musicfixer/internal/metadata"
+)
 
 // Song represents a music file with metadata
 type Song struct {
@@ -9,6 +11,6 @@ type Song struct {
 	Track       int
 	Disc        int
 	Title       string
-	Picture     tag.Picture
+	Picture     metadata.Picture
 	AlbumName   string
 }
