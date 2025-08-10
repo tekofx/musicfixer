@@ -45,7 +45,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	fmt.Printf("Done! All song renamed in %s", dir)
+	fmt.Printf("Done! All song renamed in %s", *dir)
 
 	if removeOriginalFolder {
 		err := os.RemoveAll(*dir)
