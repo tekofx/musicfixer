@@ -10,6 +10,17 @@ type SongMetadataError struct {
 	Errors   []MError
 }
 
+func (e SongMetadataError) ContainsMError(code MErrorCode) bool {
+	for _, m2 := range e.Errors {
+		if m2.Code == code {
+			return true
+		}
+
+	}
+
+	return false
+}
+
 func (e SongMetadataError) Error() string {
 	msg := ""
 	for _, error := range e.Errors {

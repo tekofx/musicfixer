@@ -65,9 +65,7 @@ func testWriteMetadata(t *testing.T) {
 	imageData, _ := os.ReadFile("files/cover.jpg")
 
 	m := metadata.Metadata{
-		Title:       "test",
-		AlbumArtist: "",
-		Track:       4,
+		Track: 4,
 		Picture: id3v2.PictureFrame{
 			Picture:     imageData,
 			PictureType: id3v2.PTFrontCover,
@@ -78,12 +76,13 @@ func testWriteMetadata(t *testing.T) {
 	merror := m.WriteToFile("files/empty_tags.mp3")
 	Assert(t, merror == nil, "Merror is not nil")
 
-	//TODO: Check only if contains cover
-
+	// Check metadata has been written correctly
 	_, merr, metaErrors := metadata.GetMetadata("files/empty_tags.mp3")
 	Assert(t, merr == nil, "Merror not nil")
-	Assert(t, metaErrors.Errors[0].Code == merrors.MissingTitle, "Missing title")
-
+	Assert(t, metaErrors.ContainsMError(merrors.MissingTitle), "Not Missing title")
+	Assert(t, metaErrors.ContainsMError(merrors.MissingAlbum), "Not Missing album")
+	Assert(t, metaErrors.ContainsMError(merrors.MissingAlbumArtist), "Not Missing album artist")
+	Assert(t, metaErrors.ContainsMError(merrors.MissingYear), "Not Missing year")
+	Assert(t, !metaErrors.ContainsMError(merrors.MissingCover), "Missing cover")
 	removeMetadataFromFile("files/empty_tags.mp3")
-
 }
