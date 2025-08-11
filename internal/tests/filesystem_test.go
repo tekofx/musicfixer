@@ -27,12 +27,15 @@ func testOpenFile(t *testing.T) {
 
 }
 func testReadAlbum(t *testing.T) {
-	albums, merror, metaErrors := model.ReadAlbums("./")
-	Assert(t, albums == nil, "Albumn not nil")
+
+	musicCollection := model.NewMusicCollection()
+
+	merror, metaErrors := musicCollection.ReadAlbums("./")
 	Assert(t, len(metaErrors) == 7, "Metaerrors len != 7")
 
-	albums, merror, metaErrors = model.ReadAlbums("test")
-	Assert(t, albums == nil, "Albumn not nil")
+	musicCollection = model.NewMusicCollection()
+
+	merror, metaErrors = musicCollection.ReadAlbums("test")
 	Assert(t, len(metaErrors) == 0, "Metaerrors len != 6")
 	AssertMError(t, merror, merrors.MP3FilesNotFound, "Not mp3 files found in test")
 }

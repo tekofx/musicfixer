@@ -92,4 +92,12 @@ const (
 	CouldNotRenameFile  MErrorCode = 105
 	CouldNotDeleteDirs  MErrorCode = 106
 	PathNotExists       MErrorCode = 107
+
+	// Api Requests 200-299
+	CouldNotFetchImage         MErrorCode = 200
+	UnexpectecStatusCode       MErrorCode = 201
+	CouldNotCopyResponseToFile MErrorCode = 202
+	CouldNotCreateRequest      MErrorCode = 203
+	CouldNotGetResponse        MErrorCode = 204
+	CouldNotDecodeJson         MErrorCode = 205
 )
