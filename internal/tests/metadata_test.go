@@ -7,6 +7,7 @@ import (
 	"github.com/bogem/id3v2"
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/metadata"
+	"github.com/tekofx/musicfixer/internal/model"
 )
 
 func TestReadMetadata(t *testing.T) {
@@ -21,43 +22,46 @@ func TestWriteMetadata(t *testing.T) {
 }
 
 func testReadMetadata(t *testing.T) {
-	_, merr, merrors := metadata.ReadMetadata("files/correct_metadata.mp3")
+	song, merr := model.NewSong("files/correct_metadata.mp3")
 	AssertMErrorNotNil(t, merr)
-	Assert(t, merrors == nil, "Perror")
+	Assert(t, len(song.MErrors) == 0, "Missing title")
+
 }
 
 func testMissingMetadata(t *testing.T) {
 	// Missing title
-	_, merr, metaErrors := metadata.ReadMetadata("files/missing_title.mp3")
+	song, merr := model.NewSong("files/missing_title.mp3")
 	AssertMErrorNotNil(t, merr)
-	Assert(t, metaErrors != nil, "Metaerror is nil")
-	Assert(t, metaErrors.Errors[0].Code == merrors.MissingTitle, "Missing title")
+	Assert(t, len(song.MErrors) == 1, "No metadata errors")
+	Assert(t, song.MErrors[0].Code == merrors.MissingTitle, "Missing title")
 
 	// Missing artist
-	_, merr, metaErrors = metadata.ReadMetadata("files/missing_artist.mp3")
+	song, merr = model.NewSong("files/missing_artist.mp3")
 	AssertMErrorNotNil(t, merr)
-	Assert(t, metaErrors != nil, "Metaerror is nil")
-	Assert(t, metaErrors.Errors[0].Code == merrors.MissingArtist, "Missing artist")
+	Assert(t, len(song.MErrors) == 1, "No metadata errors")
+	Assert(t, song.MErrors[0].Code == merrors.MissingArtist, "Missing artist")
 
 	// Missing album
-	_, merr, metaErrors = metadata.ReadMetadata("files/missing_album.mp3")
+	song, merr = model.NewSong("files/missing_album.mp3")
 	AssertMErrorNotNil(t, merr)
-	Assert(t, metaErrors.Errors[0].Code == merrors.MissingAlbum, "Missing Album")
+	Assert(t, len(song.MErrors) == 1, "No metadata errors")
+	Assert(t, song.MErrors[0].Code == merrors.MissingAlbum, "Missing album")
 
 	// Missing album artist
-	_, merr, metaErrors = metadata.ReadMetadata("files/missing_album_artist.mp3")
-	AssertMErrorNotNil(t, merr)
-	Assert(t, metaErrors.Errors[0].Code == merrors.MissingAlbumArtist, "Missing Album Artist")
+	song, merr = model.NewSong("files/missing_album_artist.mp3")
+	Assert(t, len(song.MErrors) == 1, "No metadata errors")
+	Assert(t, song.MErrors[0].Code == merrors.MissingAlbumArtist, "Missing album artist")
 
 	// Missing year
-	_, merr, metaErrors = metadata.ReadMetadata("files/missing_year.mp3")
-	AssertMErrorNotNil(t, merr)
-	Assert(t, metaErrors.Errors[0].Code == merrors.MissingYear, "Missing year")
+	song, merr = model.NewSong("files/missing_year.mp3")
+	Assert(t, len(song.MErrors) == 1, "No metadata errors")
+	Assert(t, song.MErrors[0].Code == merrors.MissingYear, "Missing year")
 
 	// Missing cover
-	_, merr, metaErrors = metadata.ReadMetadata("files/missing_cover.mp3")
-	AssertMErrorNotNil(t, merr)
-	Assert(t, metaErrors.Errors[0].Code == merrors.MissingCover, "Missing Cover")
+	song, merr = model.NewSong("files/missing_cover.mp3")
+	Assert(t, len(song.MErrors) == 1, "No metadata errors")
+	Assert(t, song.MErrors[0].Code == merrors.MissingCover, "Missing cover")
+
 }
 
 func testWriteMetadata(t *testing.T) {
@@ -77,12 +81,13 @@ func testWriteMetadata(t *testing.T) {
 	AssertMErrorNotNil(t, merror)
 
 	// Check metadata has been written correctly
-	_, merr, metaErrors := metadata.ReadMetadata("files/empty_tags.mp3")
+	song, merr := model.NewSong("files/empty_tags.mp3")
 	AssertMErrorNotNil(t, merr)
-	Assert(t, metaErrors.ContainsMError(merrors.MissingTitle), "Not Missing title")
-	Assert(t, metaErrors.ContainsMError(merrors.MissingAlbum), "Not Missing album")
-	Assert(t, metaErrors.ContainsMError(merrors.MissingAlbumArtist), "Not Missing album artist")
-	Assert(t, metaErrors.ContainsMError(merrors.MissingYear), "Not Missing year")
-	Assert(t, !metaErrors.ContainsMError(merrors.MissingCover), "Missing cover")
+	Assert(t, len(song.MErrors) == 5, "No metadata errors")
+	Assert(t, song.ContainsMetadataError(merrors.MissingCover), "Missing cover")
+	Assert(t, song.ContainsMetadataError(merrors.MissingTitle), "Missing title")
+	Assert(t, song.ContainsMetadataError(merrors.MissingAlbum), "Missing album")
+	Assert(t, song.ContainsMetadataError(merrors.MissingAlbumArtist), "Missing album artist")
+	Assert(t, song.ContainsMetadataError(merrors.MissingYear), "Missing year")
 	removeMetadataFromFile("files/empty_tags.mp3")
 }

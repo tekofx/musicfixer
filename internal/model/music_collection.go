@@ -71,10 +71,9 @@ func (musicCollection *MusicCollection) RenameSongs(outputDir string) *merrors.M
 	return nil
 }
 
-func (m *MusicCollection) ReadAlbums(searchDir string) (*merrors.MError, []merrors.SongMetadataError) {
+func (m *MusicCollection) ReadAlbums(searchDir string) *merrors.MError {
 	// Initialize a map to group songs by album
 
-	var perrors []merrors.SongMetadataError
 	var merr *merrors.MError
 
 	filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
@@ -89,15 +88,10 @@ func (m *MusicCollection) ReadAlbums(searchDir string) (*merrors.MError, []merro
 			return nil
 		}
 
-		song, err2, songMetadataErrors := NewSong(path)
+		song, err2 := NewSong(path)
 		if err2 != nil {
 			merr = err2
 			return filepath.SkipAll
-		}
-
-		if songMetadataErrors != nil {
-			perrors = append(perrors, *songMetadataErrors)
-			return nil
 		}
 
 		// Add song to musiccollection
@@ -107,16 +101,12 @@ func (m *MusicCollection) ReadAlbums(searchDir string) (*merrors.MError, []merro
 	})
 
 	if merr != nil {
-		return merr, nil
-	}
-
-	if len(perrors) > 0 {
-		return nil, perrors
+		return merr
 	}
 
 	if len(m.Albums) == 0 {
-		return merrors.NewWithArgs(merrors.MP3FilesNotFound, "Not mp3 files found in", searchDir), nil
+		return merrors.NewWithArgs(merrors.MP3FilesNotFound, "Not mp3 files found in", searchDir)
 	}
 
-	return nil, nil
+	return nil
 }

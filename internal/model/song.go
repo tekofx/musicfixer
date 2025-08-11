@@ -18,31 +18,44 @@ type Song struct {
 	Track       int
 	Disc        *int
 	Title       string
+	Year        string
 	Picture     *id3v2.PictureFrame
 	AlbumName   string
 	Artist      string
+	MErrors     []merrors.MError
 }
 
-func NewSong(filepath string) (*Song, *merrors.MError, *merrors.SongMetadataError) {
-	metadata, merror, metaerrors := metadata.ReadMetadata(filepath)
+func NewSong(filepath string) (*Song, *merrors.MError) {
+	tag, err := id3v2.Open(filepath, id3v2.Options{Parse: true})
+	if err != nil {
+		return nil, merrors.NewWithArgs(merrors.CouldNotOpenFile, "Error while opening mp3 file:", err)
+	}
+	defer tag.Close()
 
-	if merror != nil {
-		return nil, merror, nil
+	songMetadataErrors := metadata.CheckMetadata(tag, filepath)
+
+	metadata := Song{
+		Title:     tag.Title(),
+		AlbumName: tag.Album(),
+		Year:      tag.Year(),
+		Artist:    metadata.GetAlbumArtist(tag),
+		Track:     metadata.GetTrack(tag),
+		Disc:      metadata.GetDisc(tag),
+		Picture:   metadata.GetPicture(tag),
+		MErrors:   songMetadataErrors.Errors,
 	}
 
-	if metaerrors != nil {
-		return nil, nil, metaerrors
+	return &metadata, nil
+
+}
+
+func (song *Song) ContainsMetadataError(code merrors.MErrorCode) bool {
+	for _, m2 := range song.MErrors {
+		if m2.Code == code {
+			return true
+		}
 	}
-
-	return &Song{
-		FilePath:  filepath,
-		Title:     metadata.Title,
-		AlbumName: metadata.Album,
-		Artist:    metadata.AlbumArtist,
-		Track:     metadata.Track,
-		Disc:      metadata.Disc,
-	}, nil, nil
-
+	return false
 }
 
 func (song *Song) SaveCover(outputFilePath string) *merrors.MError {

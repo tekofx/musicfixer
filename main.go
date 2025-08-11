@@ -23,19 +23,23 @@ func main() {
 
 	musicCollection := model.NewMusicCollection()
 
-	merr, errors := musicCollection.ReadAlbums(*dir)
+	merr = musicCollection.ReadAlbums(*dir)
 
 	if merr != nil {
 		merr.Print()
 		os.Exit(0)
 	}
 
-	if errors != nil {
-		fmt.Println("Error reading songs metadata:")
-		for _, error := range errors {
-			fmt.Printf("%v\n", error)
+	for _, album := range musicCollection.Albums {
+		for _, song := range album.Songs {
+			if len(song.MErrors) > 0 {
+				for _, error := range song.MErrors {
+					fmt.Printf("%v\n", error)
+				}
+			}
+
 		}
-		os.Exit(0)
+
 	}
 
 	musicCollection.SetNewFilePaths()

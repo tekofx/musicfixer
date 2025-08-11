@@ -8,7 +8,7 @@ import (
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
-func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
+func CheckMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 	songMetadataErrors := merrors.SongMetadataError{
 		SongPath: path,
 	}
@@ -25,11 +25,11 @@ func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTitle, "Missing Title"))
 	}
 
-	if getTrack(m) == -1 {
+	if GetTrack(m) == -1 {
 		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTrackNumber, "Missing Track Number"))
 	}
 
-	if getAlbumArtist(m) == "" {
+	if GetAlbumArtist(m) == "" {
 		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbumArtist, "Missing Album Artist"))
 	}
 
@@ -49,33 +49,7 @@ func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 
 }
 
-func ReadMetadata(filepath string) (*Metadata, *merrors.MError, *merrors.SongMetadataError) {
-	tag, err := id3v2.Open(filepath, id3v2.Options{Parse: true})
-	if err != nil {
-		return nil, merrors.NewWithArgs(merrors.CouldNotOpenFile, "Error while opening mp3 file:", err), nil
-	}
-	defer tag.Close()
-
-	songMetadataErrors := checkMetadata(tag, filepath)
-	if songMetadataErrors != nil {
-		return nil, nil, songMetadataErrors
-	}
-
-	metadata := Metadata{
-		Title:       tag.Title(),
-		Album:       tag.Album(),
-		Year:        tag.Year(),
-		AlbumArtist: getAlbumArtist(tag),
-		Track:       getTrack(tag),
-		Disc:        getDisc(tag),
-		Picture:     getPicture(tag),
-	}
-
-	return &metadata, nil, nil
-
-}
-
-func getTrack(metadata *id3v2.Tag) int {
+func GetTrack(metadata *id3v2.Tag) int {
 
 	str := strings.Split(metadata.GetTextFrame("TRCK").Text, "/")[0]
 
@@ -88,7 +62,7 @@ func getTrack(metadata *id3v2.Tag) int {
 	return num
 }
 
-func getDisc(metadata *id3v2.Tag) *int {
+func GetDisc(metadata *id3v2.Tag) *int {
 	str := strings.Split(metadata.GetTextFrame("TPOS").Text, "/")[0]
 
 	if str == "" {
@@ -101,14 +75,14 @@ func getDisc(metadata *id3v2.Tag) *int {
 
 }
 
-func getPicture(metadata *id3v2.Tag) id3v2.PictureFrame {
+func GetPicture(metadata *id3v2.Tag) *id3v2.PictureFrame {
 	picture := metadata.GetFrames("APIC")[0]
 	p := picture.(id3v2.PictureFrame)
 
-	return p
+	return &p
 
 }
 
-func getAlbumArtist(metadata *id3v2.Tag) string {
+func GetAlbumArtist(metadata *id3v2.Tag) string {
 	return metadata.GetTextFrame("TPE2").Text
 }
