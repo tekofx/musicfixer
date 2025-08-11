@@ -20,6 +20,7 @@ func SearchAlbum(artist string, album string) (*model.MusicBrainzAlbumResponse, 
 	if merr != nil {
 		return nil, merr
 	}
+	defer res.Body.Close()
 
 	var data model.MusicBrainzAlbumResponse
 	err := json.NewDecoder(res.Body).Decode(&data)

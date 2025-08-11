@@ -18,6 +18,7 @@ func SaveReleaseCover(releaseId string) *merrors.MError {
 	if merr != nil {
 		return merr
 	}
+	defer res.Body.Close()
 
 	var data model.CoverArtResponse
 	err := json.NewDecoder(res.Body).Decode(&data)

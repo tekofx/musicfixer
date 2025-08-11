@@ -21,7 +21,6 @@ func GetRequest(url string) (*http.Response, *merrors.MError) {
 	if err != nil {
 		return nil, merrors.NewWithArgs(merrors.CouldNotGetResponse, err)
 	}
-	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		return nil, merrors.NewWithArgs(merrors.UnexpectecStatusCode, res.StatusCode)

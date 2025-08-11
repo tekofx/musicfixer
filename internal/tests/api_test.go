@@ -12,5 +12,8 @@ func TestMusicBrainz(t *testing.T) {
 }
 
 func getAlbum(t *testing.T) {
-	api.SearchAlbum("siames", "bounce")
+	album, merr := api.SearchAlbum("siames", "bounce")
+
+	AssertMErrorNotNil(t, merr)
+	Assert(t, album.Releases[0].Title == "BOUNCE INTO THE MUSIC", "Album not corresponds")
 }
