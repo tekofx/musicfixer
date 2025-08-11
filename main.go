@@ -21,7 +21,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	albumSongs, merr, errors := model.ReadAlbums(*dir)
+	musicCollection, merr, errors := model.ReadAlbums(*dir)
 
 	if merr != nil {
 		merr.Print()
@@ -36,13 +36,13 @@ func main() {
 		os.Exit(0)
 	}
 
-	model.SetNewFilePaths(albumSongs)
+	model.SetNewFilePaths(musicCollection)
 
 	if dry {
-		flags.DryRun(albumSongs, outputDir)
+		flags.DryRun(musicCollection, outputDir)
 	}
 
-	merr = model.RenameSongs(*albumSongs, outputDir)
+	merr = model.RenameSongs(*musicCollection, outputDir)
 	if merr != nil {
 		merr.Print()
 		os.Exit(0)

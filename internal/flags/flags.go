@@ -75,8 +75,8 @@ func GetDir() (*string, *merrors.MError) {
 	return &rootDir, nil
 }
 
-func DryRun(albumSongs *map[string]model.Album, outputDir string) {
-	for _, album := range *albumSongs {
+func DryRun(musicCollection *model.MusicCollection, outputDir string) {
+	for _, album := range musicCollection.Albums {
 		outputPath := filepath.Join(outputDir, album.Name)
 		coverPath := filepath.Join(outputPath, "cover.jpg")
 		fmt.Printf("Cover: %s\n", coverPath)

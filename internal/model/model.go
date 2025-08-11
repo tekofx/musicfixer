@@ -6,35 +6,12 @@ import (
 	"path/filepath"
 
 	merrors "github.com/tekofx/musicfixer/internal/errors"
-	"github.com/tekofx/musicfixer/internal/metadata"
+	"github.com/tekofx/musicfixer/internal/song"
 	"github.com/tekofx/musicfixer/internal/utils"
 )
 
-func getSong(path string) (*Song, *merrors.MError, *merrors.SongMetadataError) {
-
-	m, err, songMetadataErrors := metadata.ReadMetadata(path)
-	if err != nil {
-		return nil, err, nil
-	}
-
-	if songMetadataErrors != nil {
-		return nil, nil, songMetadataErrors
-	}
-
-	song := Song{
-		FilePath:  path,
-		Title:     m.Title,
-		Track:     m.Track,
-		Disc:      m.Disc,
-		Picture:   &m.Picture,
-		AlbumName: m.Album,
-	}
-
-	return &song, nil, nil
-}
-
-func SetNewFilePaths(albumSongs *map[string]Album) {
-	for _, album := range *albumSongs {
+func SetNewFilePaths(musicCollection *MusicCollection) {
+	for _, album := range musicCollection.Albums {
 		for i := range album.Songs {
 			newFilePath := setNewFilePath(album.Songs[i], album)
 			album.Songs[i].NewFilePath = newFilePath
@@ -42,7 +19,7 @@ func SetNewFilePaths(albumSongs *map[string]Album) {
 	}
 }
 
-func setNewFilePath(song Song, album Album) string {
+func setNewFilePath(song song.Song, album Album) string {
 	track := song.Track
 	var newName string
 	var trackString string
@@ -64,12 +41,12 @@ func setNewFilePath(song Song, album Album) string {
 	return filepath.Join("output", utils.CleanFilename(album.Name), newName)
 }
 
-func RenameSongs(albumSongs map[string]Album, outputDir string) *merrors.MError {
+func RenameSongs(musicCollection MusicCollection, outputDir string) *merrors.MError {
 	err := os.MkdirAll(outputDir, 0755)
 	if err != nil {
 		return merrors.NewWithArgs(merrors.CouldNotCreateDir, "Could not create dir", outputDir, err)
 	}
-	for _, album := range albumSongs {
+	for _, album := range musicCollection.Albums {
 		outputPath := filepath.Dir(album.Songs[0].NewFilePath)
 		err = os.MkdirAll(outputPath, 0755)
 		if err != nil {
@@ -92,9 +69,9 @@ func RenameSongs(albumSongs map[string]Album, outputDir string) *merrors.MError 
 	return nil
 }
 
-func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors.SongMetadataError) {
+func ReadAlbums(searchDir string) (*MusicCollection, *merrors.MError, []merrors.SongMetadataError) {
 	// Initialize a map to group songs by album
-	albumSongs := make(map[string]Album)
+	musicCollection := MusicCollection{}
 
 	var perrors []merrors.SongMetadataError
 	var merr *merrors.MError
@@ -111,7 +88,7 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 			return nil
 		}
 
-		song, err2, songMetadataErrors := getSong(path)
+		song, err2, songMetadataErrors := song.New(path)
 		if err2 != nil {
 			merr = err2
 			return filepath.SkipAll
@@ -122,17 +99,8 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 			return nil
 		}
 
-		album := albumSongs[song.AlbumName]
-		album.Name = song.AlbumName
-		album.Songs = append(album.Songs, *song)
-		if !album.MultiDisk {
-			if song.Disc != nil && *song.Disc > 1 {
-				album.MultiDisk = true
-			}
-		}
-
-		// Add the song to the appropriate album group
-		albumSongs[song.AlbumName] = album
+		// Add song to musiccollection
+		musicCollection.AddSong(*song)
 
 		return nil
 	})
@@ -145,14 +113,14 @@ func ReadAlbums(searchDir string) (*map[string]Album, *merrors.MError, []merrors
 		return nil, nil, perrors
 	}
 
-	if len(albumSongs) == 0 {
+	if len(musicCollection.Albums) == 0 {
 		return nil, merrors.NewWithArgs(merrors.MP3FilesNotFound, "Not mp3 files found in", searchDir), nil
 	}
 
-	return &albumSongs, nil, nil
+	return &musicCollection, nil, nil
 }
 
-func saveCover(song Song, outputFilePath string) *merrors.MError {
+func saveCover(song song.Song, outputFilePath string) *merrors.MError {
 	var err error
 
 	// Check if cover art exists
