@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/bogem/id3v2"
 	merrors "github.com/tekofx/musicfixer/internal/errors"
@@ -34,7 +35,7 @@ func NewSong(filepath string) (*Song, *merrors.MError) {
 
 	songMetadataErrors := metadata.CheckMetadata(tag, filepath)
 
-	metadata := Song{
+	return &Song{
 		Title:     tag.Title(),
 		AlbumName: tag.Album(),
 		Year:      tag.Year(),
@@ -42,11 +43,33 @@ func NewSong(filepath string) (*Song, *merrors.MError) {
 		Track:     metadata.GetTrack(tag),
 		Disc:      metadata.GetDisc(tag),
 		Picture:   metadata.GetPicture(tag),
-		MErrors:   songMetadataErrors.Errors,
+		MErrors:   songMetadataErrors,
+	}, nil
+
+}
+
+func (song *Song) UpdateFile() *merrors.MError {
+	// TODO: Add frame parse as option
+	tag, err := id3v2.Open(song.FilePath, id3v2.Options{Parse: true})
+	if err != nil {
+		return merrors.NewWithArgs(merrors.UnexpectedError, err)
 	}
 
-	return &metadata, nil
+	// Write tags
+	tag.AddTextFrame(metadata.MetadataTrack, tag.DefaultEncoding(), strconv.Itoa(song.Track))
+	if song.Disc != nil {
+		tag.AddTextFrame(metadata.MetadataDisc, tag.DefaultEncoding(), strconv.Itoa(*song.Disc))
+	}
+	tag.AddTextFrame(metadata.MetadataAlbumArtist, tag.DefaultEncoding(), song.Artist)
 
+	tag.AddAttachedPicture(*song.Picture)
+
+	// Save tag to file
+	err = tag.Save()
+	if err != nil {
+		return merrors.NewWithArgs(merrors.UnexpectedError, err)
+	}
+	return nil
 }
 
 func (song *Song) ContainsMetadataError(code merrors.MErrorCode) bool {

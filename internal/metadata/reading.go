@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -8,42 +9,41 @@ import (
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
-func CheckMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
-	songMetadataErrors := merrors.SongMetadataError{
-		SongPath: path,
-	}
+func CheckMetadata(m *id3v2.Tag, path string) []merrors.MError {
+	var merrs []merrors.MError
 
 	if m.Artist() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingArtist, "Missing Artist"))
+		merrs = append(merrs, *merrors.New(merrors.MissingArtist, "Missing Artist"))
 	}
 
 	if m.Album() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbum, "Missing Album"))
+		merrs = append(merrs, *merrors.New(merrors.MissingAlbum, "Missing Album"))
 	}
 
 	if m.Title() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTitle, "Missing Title"))
+		merrs = append(merrs, *merrors.New(merrors.MissingTitle, "Missing Title"))
 	}
 
 	if GetTrack(m) == -1 {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingTrackNumber, "Missing Track Number"))
+		merrs = append(merrs, *merrors.New(merrors.MissingTrackNumber, "Missing Track Number"))
 	}
 
 	if GetAlbumArtist(m) == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingAlbumArtist, "Missing Album Artist"))
+		merrs = append(merrs, *merrors.New(merrors.MissingAlbumArtist, "Missing Album Artist"))
 	}
 
 	if m.Year() == "" {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingYear, "Missing Year"))
+		merrs = append(merrs, *merrors.New(merrors.MissingYear, "Missing Year"))
 
 	}
 
-	if len(m.GetFrames("APIC")) == 0 {
-		songMetadataErrors.Errors = append(songMetadataErrors.Errors, *merrors.New(merrors.MissingCover, "Missing Cover"))
+	if GetPicture(m) == nil {
+		merrs = append(merrs, *merrors.New(merrors.MissingCover, "Missing Cover"))
 	}
 
-	if len(songMetadataErrors.Errors) > 0 {
-		return &songMetadataErrors
+	if len(merrs) > 0 {
+		fmt.Println("merrs", merrs)
+		return merrs
 	}
 	return nil
 
@@ -76,6 +76,10 @@ func GetDisc(metadata *id3v2.Tag) *int {
 }
 
 func GetPicture(metadata *id3v2.Tag) *id3v2.PictureFrame {
+	if len(metadata.GetFrames("APIC")) == 0 {
+		return nil
+	}
+
 	picture := metadata.GetFrames("APIC")[0]
 	p := picture.(id3v2.PictureFrame)
 

@@ -6,7 +6,6 @@ import (
 
 	"github.com/bogem/id3v2"
 	merrors "github.com/tekofx/musicfixer/internal/errors"
-	"github.com/tekofx/musicfixer/internal/metadata"
 	"github.com/tekofx/musicfixer/internal/model"
 )
 
@@ -68,22 +67,23 @@ func testWriteMetadata(t *testing.T) {
 	// Read the image file
 	imageData, _ := os.ReadFile("files/cover.jpg")
 
-	m := metadata.Metadata{
-		Track: 4,
-		Picture: id3v2.PictureFrame{
-			Picture:     imageData,
-			PictureType: id3v2.PTFrontCover,
-			Encoding:    id3v2.EncodingISO,
-		},
-	}
-
-	merror := m.WriteToFile("files/empty_tags.mp3")
-	AssertMErrorNotNil(t, merror)
-
-	// Check metadata has been written correctly
 	song, merr := model.NewSong("files/empty_tags.mp3")
 	AssertMErrorNotNil(t, merr)
+
+	song.Picture = &id3v2.PictureFrame{
+		Picture:     imageData,
+		PictureType: id3v2.PTFrontCover,
+		Encoding:    id3v2.EncodingISO,
+	}
+
+	merr = song.UpdateFile()
+	AssertMErrorNotNil(t, merr)
+
+	// Check metadata has been written correctly
+	song, merr = model.NewSong("files/empty_tags.mp3")
+	AssertMErrorNotNil(t, merr)
 	Assert(t, len(song.MErrors) == 5, "No metadata errors")
+
 	Assert(t, song.ContainsMetadataError(merrors.MissingCover), "Missing cover")
 	Assert(t, song.ContainsMetadataError(merrors.MissingTitle), "Missing title")
 	Assert(t, song.ContainsMetadataError(merrors.MissingAlbum), "Missing album")
