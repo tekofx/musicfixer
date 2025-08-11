@@ -31,7 +31,7 @@ func removeMetadataFromFile(filepath string) *merrors.MError {
 
 func AssertMErrorNotNil(t *testing.T, error *merrors.MError) {
 	if error != nil {
-		error.Print()
+		fmt.Printf("Test failed\n%s\n", error.Message)
 		t.FailNow()
 	}
 }
