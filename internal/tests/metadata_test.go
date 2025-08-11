@@ -21,41 +21,41 @@ func TestWriteMetadata(t *testing.T) {
 }
 
 func testReadMetadata(t *testing.T) {
-	_, merr, merrors := metadata.GetMetadata("files/correct_metadata.mp3")
+	_, merr, merrors := metadata.ReadMetadata("files/correct_metadata.mp3")
 	Assert(t, merr == nil, "Error")
 	Assert(t, merrors == nil, "Perror")
 }
 
 func testMissingMetadata(t *testing.T) {
 	// Missing title
-	_, merr, metaErrors := metadata.GetMetadata("files/missing_title.mp3")
+	_, merr, metaErrors := metadata.ReadMetadata("files/missing_title.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors != nil, "Metaerror is nil")
 	Assert(t, metaErrors.Errors[0].Code == merrors.MissingTitle, "Missing title")
 
 	// Missing artist
-	_, merr, metaErrors = metadata.GetMetadata("files/missing_artist.mp3")
+	_, merr, metaErrors = metadata.ReadMetadata("files/missing_artist.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors != nil, "Metaerror is nil")
 	Assert(t, metaErrors.Errors[0].Code == merrors.MissingArtist, "Missing artist")
 
 	// Missing album
-	_, merr, metaErrors = metadata.GetMetadata("files/missing_album.mp3")
+	_, merr, metaErrors = metadata.ReadMetadata("files/missing_album.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors.Errors[0].Code == merrors.MissingAlbum, "Missing Album")
 
 	// Missing album artist
-	_, merr, metaErrors = metadata.GetMetadata("files/missing_album_artist.mp3")
+	_, merr, metaErrors = metadata.ReadMetadata("files/missing_album_artist.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors.Errors[0].Code == merrors.MissingAlbumArtist, "Missing Album Artist")
 
 	// Missing year
-	_, merr, metaErrors = metadata.GetMetadata("files/missing_year.mp3")
+	_, merr, metaErrors = metadata.ReadMetadata("files/missing_year.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors.Errors[0].Code == merrors.MissingYear, "Missing year")
 
 	// Missing cover
-	_, merr, metaErrors = metadata.GetMetadata("files/missing_cover.mp3")
+	_, merr, metaErrors = metadata.ReadMetadata("files/missing_cover.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors.Errors[0].Code == merrors.MissingCover, "Missing Cover")
 }
@@ -77,7 +77,7 @@ func testWriteMetadata(t *testing.T) {
 	Assert(t, merror == nil, "Merror is not nil")
 
 	// Check metadata has been written correctly
-	_, merr, metaErrors := metadata.GetMetadata("files/empty_tags.mp3")
+	_, merr, metaErrors := metadata.ReadMetadata("files/empty_tags.mp3")
 	Assert(t, merr == nil, "Merror not nil")
 	Assert(t, metaErrors.ContainsMError(merrors.MissingTitle), "Not Missing title")
 	Assert(t, metaErrors.ContainsMError(merrors.MissingAlbum), "Not Missing album")

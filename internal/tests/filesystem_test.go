@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	merrors "github.com/tekofx/musicfixer/internal/errors"
+	"github.com/tekofx/musicfixer/internal/flags"
 	"github.com/tekofx/musicfixer/internal/metadata"
 	"github.com/tekofx/musicfixer/internal/model"
 )
@@ -18,10 +19,10 @@ func TestFilesystem(t *testing.T) {
 
 }
 func testOpenFile(t *testing.T) {
-	_, merr, _ := metadata.GetMetadata("files/correct_metadata.mp3")
+	_, merr, _ := metadata.ReadMetadata("files/correct_metadata.mp3")
 	Assert(t, merr == nil, "Could not open file")
 
-	_, merr, _ = metadata.GetMetadata("a.mp3")
+	_, merr, _ = metadata.ReadMetadata("a.mp3")
 	AssertMError(t, merr, merrors.CouldNotOpenFile, "Error while opening mp3 file: open a.mp3: no such file or directory")
 
 }
@@ -34,4 +35,9 @@ func testReadAlbum(t *testing.T) {
 	Assert(t, albums == nil, "Albumn not nil")
 	Assert(t, len(metaErrors) == 0, "Metaerrors len != 6")
 	AssertMError(t, merror, merrors.MP3FilesNotFound, "Not mp3 files found in test")
+}
+
+func testGetDir(t *testing.T) {
+	flags.GetDir()
+
 }

@@ -12,7 +12,7 @@ import (
 
 func getSong(path string) (*Song, *merrors.MError, *merrors.SongMetadataError) {
 
-	m, err, songMetadataErrors := metadata.GetMetadata(path)
+	m, err, songMetadataErrors := metadata.ReadMetadata(path)
 	if err != nil {
 		return nil, err, nil
 	}

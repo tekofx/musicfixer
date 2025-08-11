@@ -8,23 +8,6 @@ import (
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
-type Metadata struct {
-	Title       string
-	Album       string
-	AlbumArtist string
-	Year        string
-	Track       int
-	Disc        *int
-	Picture     id3v2.PictureFrame
-}
-
-const (
-	MetadataTrack       = "TRCK"
-	MetadataDisc        = "TPOS"
-	MetadataCover       = "APIC"
-	MetadataAlbumArtist = "TPE2"
-)
-
 func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 	songMetadataErrors := merrors.SongMetadataError{
 		SongPath: path,
@@ -66,14 +49,14 @@ func checkMetadata(m *id3v2.Tag, path string) *merrors.SongMetadataError {
 
 }
 
-func GetMetadata(path string) (*Metadata, *merrors.MError, *merrors.SongMetadataError) {
-	tag, err := id3v2.Open(path, id3v2.Options{Parse: true})
+func ReadMetadata(filepath string) (*Metadata, *merrors.MError, *merrors.SongMetadataError) {
+	tag, err := id3v2.Open(filepath, id3v2.Options{Parse: true})
 	if err != nil {
 		return nil, merrors.NewWithArgs(merrors.CouldNotOpenFile, "Error while opening mp3 file:", err), nil
 	}
 	defer tag.Close()
 
-	songMetadataErrors := checkMetadata(tag, path)
+	songMetadataErrors := checkMetadata(tag, filepath)
 	if songMetadataErrors != nil {
 		return nil, nil, songMetadataErrors
 	}
