@@ -33,6 +33,7 @@ func NewSong(filepath string) (*Song, *merrors.MError) {
 	}
 	defer tag.Close()
 
+	// TODO: Not working
 	songMetadataErrors := metadata.CheckMetadata(tag, filepath)
 
 	return &Song{

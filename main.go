@@ -30,16 +30,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	for _, album := range musicCollection.Albums {
-		for _, song := range album.Songs {
-			if len(song.MErrors) > 0 {
-				for _, error := range song.MErrors {
-					fmt.Printf("%v\n", error)
-				}
-			}
-
-		}
-
+	if musicCollection.HasMetaErrors() {
+		musicCollection.PrintMetaErrors()
+		os.Exit(0)
 	}
 
 	musicCollection.SetNewFilePaths()

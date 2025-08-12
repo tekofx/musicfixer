@@ -18,16 +18,38 @@ func NewMusicCollection() *MusicCollection {
 	}
 }
 
+func (mc *MusicCollection) HasMetaErrors() bool {
+	for _, album := range mc.Albums {
+		for _, song := range album.Songs {
+			if len(song.MErrors) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (mc *MusicCollection) PrintMetaErrors() {
+	for _, album := range mc.Albums {
+		for _, song := range album.Songs {
+			if len(song.MErrors) > 0 {
+				for _, error := range song.MErrors {
+					fmt.Printf("%v\n", error)
+				}
+			}
+		}
+	}
+}
+
 func (mc *MusicCollection) AddSong(song Song) {
 	album := mc.Albums[song.AlbumName]
-	fmt.Println(album)
 	album.AddSong(song)
 	if !album.MultiDisk {
 		if song.Disc != nil && *song.Disc > 1 {
 			album.MultiDisk = true
 		}
 	}
-	mc.Albums[album.Name] = album
+	mc.Albums[song.AlbumName] = album
 }
 
 func (mc *MusicCollection) AddAlbum(album Album) {
