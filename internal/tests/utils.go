@@ -17,7 +17,7 @@ func Assert(t *testing.T, predicate bool, failMessage string) {
 }
 
 func removeMetadataFromFile(filepath string) *merrors.MError {
-	tag, err := id3v2.Open("songs/empty_tags.mp3", id3v2.Options{Parse: true})
+	tag, err := id3v2.Open(filepath, id3v2.Options{Parse: true})
 	if err != nil {
 		return merrors.NewWithArgs(merrors.CouldNotOpenFile, err)
 	}

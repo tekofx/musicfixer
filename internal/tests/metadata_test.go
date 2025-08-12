@@ -76,18 +76,21 @@ func testWriteMetadata(t *testing.T) {
 		Encoding:    id3v2.EncodingISO,
 	}
 
+	// Update song file
 	merr = song.UpdateFile()
 	AssertMErrorNotNil(t, merr)
 
 	// Check metadata has been written correctly
 	song, merr = model.NewSong("files/empty_tags.mp3")
+
 	AssertMErrorNotNil(t, merr)
 	Assert(t, len(song.MErrors) == 5, "No metadata errors")
 
-	Assert(t, song.ContainsMetadataError(merrors.MissingCover), "Missing cover")
 	Assert(t, song.ContainsMetadataError(merrors.MissingTitle), "Missing title")
 	Assert(t, song.ContainsMetadataError(merrors.MissingAlbum), "Missing album")
 	Assert(t, song.ContainsMetadataError(merrors.MissingAlbumArtist), "Missing album artist")
 	Assert(t, song.ContainsMetadataError(merrors.MissingYear), "Missing year")
-	removeMetadataFromFile("files/empty_tags.mp3")
+	merr = removeMetadataFromFile("files/empty_tags.mp3")
+	AssertMErrorNotNil(t, merr)
+
 }

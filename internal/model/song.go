@@ -36,6 +36,7 @@ func NewSong(filepath string) (*Song, *merrors.MError) {
 	songMetadataErrors := metadata.CheckMetadata(tag, filepath)
 
 	return &Song{
+		FilePath:  filepath,
 		Title:     tag.Title(),
 		AlbumName: tag.Album(),
 		Year:      tag.Year(),
