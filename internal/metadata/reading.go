@@ -1,7 +1,6 @@
 package metadata
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -41,10 +40,6 @@ func CheckMetadata(m *id3v2.Tag, path string) []merrors.MError {
 		merrs = append(merrs, *merrors.New(merrors.MissingCover, "Missing Cover"))
 	}
 
-	if len(merrs) > 0 {
-		fmt.Println("merrs", merrs)
-		return merrs
-	}
 	return nil
 
 }

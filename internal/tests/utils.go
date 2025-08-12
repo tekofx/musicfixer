@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/bogem/id3v2"
@@ -42,4 +43,8 @@ func AssertMError(t *testing.T, error *merrors.MError, code merrors.MErrorCode, 
 		t.FailNow()
 	}
 	Assert(t, error.Code == code && error.Message == message, fmt.Sprintf("\n[%d - %s] \nwas expected but \n[%d - %s] \nwas found\n", code, message, error.Code, error.Message))
+}
+
+func RemoveFile(filepath string) {
+	os.Remove(filepath)
 }
