@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	outputDir, dry, removeOriginalFolder, merr := flags.SetupFlags()
+	outputDir, dry, removeOriginalFolder, completeMetadata, merr := flags.SetupFlags()
 	if merr != nil {
 		merr.Print()
 		os.Exit(0)
@@ -32,7 +32,13 @@ func main() {
 
 	if musicCollection.HasMetaErrors() {
 		musicCollection.PrintMetaErrors()
+		musicCollection.FixMetadata()
 		os.Exit(0)
+	}
+
+	if completeMetadata {
+		fmt.Println("a")
+		musicCollection.FixMetadata()
 	}
 
 	musicCollection.SetNewFilePaths()

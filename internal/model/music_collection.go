@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/tekofx/musicfixer/internal/api"
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
@@ -27,6 +28,18 @@ func (mc *MusicCollection) HasMetaErrors() bool {
 		}
 	}
 	return false
+}
+
+func (mc *MusicCollection) FixMetadata() {
+	for albumName, album := range mc.Albums {
+		fmt.Println(album.Songs[0].Artist, albumName)
+		m, merr := api.SearchAlbum(album.Songs[0].Artist, albumName)
+		if merr != nil {
+			merr.Print()
+			return
+		}
+		fmt.Println(*m)
+	}
 }
 
 func (mc *MusicCollection) PrintMetaErrors() {

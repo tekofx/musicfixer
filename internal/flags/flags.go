@@ -22,7 +22,7 @@ func pathExists(path string) (bool, *merrors.MError) {
 	return false, merrors.NewWithArgs(merrors.UnexpectedError, err) // Some other error (e.g., permission denied)
 }
 
-func SetupFlags() (string, bool, bool, *merrors.MError) {
+func SetupFlags() (string, bool, bool, bool, *merrors.MError) {
 	var outputDir string
 	outputDir = "output"
 	flag.StringVar(&outputDir, "output", "output", "Output directory")
@@ -34,6 +34,11 @@ func SetupFlags() (string, bool, bool, *merrors.MError) {
 	var removeOriginalFolder bool
 	flag.BoolVar(&removeOriginalFolder, "remove", false, "Remove original folder")
 	flag.BoolVar(&removeOriginalFolder, "r", false, "Remove original folder")
+
+	var completeMetadata bool
+	flag.BoolVar(&completeMetadata, "fix", false, "Complete missing metadata")
+	flag.BoolVar(&completeMetadata, "f", false, "Complete missing metadata")
+
 	// Help flag
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [FLAGS] [directory]\n", os.Args[0])
@@ -48,10 +53,10 @@ func SetupFlags() (string, bool, bool, *merrors.MError) {
 	flag.Parse()
 
 	if len(flag.Args()) > 1 {
-		return "", false, false, merrors.NewWithArgs(merrors.WrongFlagsPosition, "Flags go before directory: musicfixer", strings.Join(flag.Args()[1:], " "), flag.Arg(0))
+		return "", false, false, false, merrors.NewWithArgs(merrors.WrongFlagsPosition, "Flags go before directory: musicfixer", strings.Join(flag.Args()[1:], " "), flag.Arg(0))
 	}
 
-	return outputDir, dryRun, removeOriginalFolder, nil
+	return outputDir, dryRun, removeOriginalFolder, completeMetadata, nil
 }
 
 func GetDir() (*string, *merrors.MError) {

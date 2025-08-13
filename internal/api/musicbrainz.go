@@ -10,7 +10,7 @@ import (
 
 func SearchAlbum(artist string, album string) (*MusicBrainzAlbumResponse, *merrors.MError) {
 	// URL-encode the query properly
-	url := fmt.Sprintf("http://musicbrainz.org/ws/2/release?query=artist:%s%%20AND%%20release:%s&fmt=json",
+	url := fmt.Sprintf("https://musicbrainz.org/ws/2/release?query=artist:%s%%20AND%%20release:%s&fmt=json",
 		url.QueryEscape(artist),
 		url.QueryEscape(album),
 	)
@@ -25,6 +25,10 @@ func SearchAlbum(artist string, album string) (*MusicBrainzAlbumResponse, *merro
 	err := json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
 		return nil, merrors.NewWithArgs(merrors.CouldNotDecodeJson, err)
+	}
+
+	if data.Count == 0 {
+		return nil, merrors.New(merrors.EmptyResponse, "Album response is empty")
 	}
 	return &data, nil
 }
