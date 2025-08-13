@@ -6,7 +6,6 @@ import (
 	"net/url"
 
 	merrors "github.com/tekofx/musicfixer/internal/errors"
-	"github.com/tekofx/musicfixer/internal/model"
 )
 
 func SaveReleaseCover(releaseId string) *merrors.MError {
@@ -14,13 +13,13 @@ func SaveReleaseCover(releaseId string) *merrors.MError {
 		url.QueryEscape(releaseId),
 	)
 
-	res, merr := GetRequest(url)
+	res, merr := getRequest(url)
 	if merr != nil {
 		return merr
 	}
 	defer res.Body.Close()
 
-	var data model.CoverArtResponse
+	var data CoverArtResponse
 	err := json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
 		return merrors.NewWithArgs(merrors.CouldNotDecodeJson, err)
