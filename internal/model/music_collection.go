@@ -31,14 +31,15 @@ func (mc *MusicCollection) HasMetaErrors() bool {
 }
 
 func (mc *MusicCollection) FixMetadata() {
-	for albumName, album := range mc.Albums {
-		fmt.Println(album.Songs[0].Artist, albumName)
-		m, merr := api.SearchAlbum(album.Songs[0].Artist, albumName)
+	for albumName, _ := range mc.Albums {
+		m, merr := api.SearchAlbumByName(albumName)
 		if merr != nil {
 			merr.Print()
 			return
 		}
-		fmt.Println(*m)
+
+		meta := m.Releases[0]
+		fmt.Printf("Album Name: %s, Artist: %s", meta.Title, meta.ArtistCredit[0].Details.SortName)
 	}
 }
 

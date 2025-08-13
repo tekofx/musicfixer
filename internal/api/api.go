@@ -55,8 +55,15 @@ type Release struct {
 	Country      string   `json:"country,omitempty"`
 }
 
+type ArtistDetails struct {
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	SortName string `json:"sort-name"`
+}
+
 type Artist struct {
-	Name string `json:"name"`
+	Name    string        `json:"name"`
+	Details ArtistDetails `json:"artist"`
 }
 
 type MusicBrainzAlbumResponse struct {

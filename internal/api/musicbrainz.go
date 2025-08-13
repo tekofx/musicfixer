@@ -8,13 +8,7 @@ import (
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
-func SearchAlbum(artist string, album string) (*MusicBrainzAlbumResponse, *merrors.MError) {
-	// URL-encode the query properly
-	url := fmt.Sprintf("https://musicbrainz.org/ws/2/release?query=artist:%s%%20AND%%20release:%s&fmt=json",
-		url.QueryEscape(artist),
-		url.QueryEscape(album),
-	)
-
+func searchAlbum(url string) (*MusicBrainzAlbumResponse, *merrors.MError) {
 	res, merr := getRequest(url)
 	if merr != nil {
 		return nil, merr
@@ -31,4 +25,23 @@ func SearchAlbum(artist string, album string) (*MusicBrainzAlbumResponse, *merro
 		return nil, merrors.New(merrors.EmptyResponse, "Album response is empty")
 	}
 	return &data, nil
+}
+
+func SearchAlbumByArtistAndAlbum(artist string, album string) (*MusicBrainzAlbumResponse, *merrors.MError) {
+	// URL-encode the query properly
+	url := fmt.Sprintf("https://musicbrainz.org/ws/2/release?query=artist:%s%%20AND%%20release:%s&fmt=json",
+		url.QueryEscape(artist),
+		url.QueryEscape(album),
+	)
+
+	return searchAlbum(url)
+}
+
+func SearchAlbumByName(album string) (*MusicBrainzAlbumResponse, *merrors.MError) {
+	// URL-encode the query properly
+	url := fmt.Sprintf("https://musicbrainz.org/ws/2/release?query=release:%s&fmt=json",
+		url.QueryEscape(album),
+	)
+
+	return searchAlbum(url)
 }
