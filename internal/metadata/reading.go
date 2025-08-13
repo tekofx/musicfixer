@@ -33,14 +33,13 @@ func CheckMetadata(m *id3v2.Tag, path string) []merrors.MError {
 
 	if m.Year() == "" {
 		merrs = append(merrs, *merrors.New(merrors.MissingYear, "Missing Year"))
-
 	}
 
 	if GetPicture(m) == nil {
 		merrs = append(merrs, *merrors.New(merrors.MissingCover, "Missing Cover"))
 	}
 
-	return nil
+	return merrs
 
 }
 

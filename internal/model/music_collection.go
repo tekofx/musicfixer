@@ -33,8 +33,9 @@ func (mc *MusicCollection) PrintMetaErrors() {
 	for _, album := range mc.Albums {
 		for _, song := range album.Songs {
 			if len(song.MErrors) > 0 {
+				fmt.Printf("%s:\n", song.FilePath)
 				for _, error := range song.MErrors {
-					fmt.Printf("%v\n", error)
+					fmt.Printf(" - %v\n", error.Message)
 				}
 			}
 		}

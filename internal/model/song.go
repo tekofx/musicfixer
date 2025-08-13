@@ -122,7 +122,7 @@ func (song *Song) SetNewFilePath(album Album) string {
 
 	if album.MultiDisk {
 		disc := song.Disc
-		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", disc, trackString, utils.CleanFilename(song.Title))
+		newName = fmt.Sprintf("Disc %d - %s. %s.mp3", *disc, trackString, utils.CleanFilename(song.Title))
 
 	} else {
 		newName = fmt.Sprintf("%s. %s.mp3", trackString, utils.CleanFilename(song.Title))
