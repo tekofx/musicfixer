@@ -8,6 +8,32 @@ import (
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
+type Release struct {
+	ID           string   `json:"id"`
+	Title        string   `json:"title"`
+	ArtistCredit []Artist `json:"artist-credit"`
+	Date         string   `json:"date,omitempty"`
+	Country      string   `json:"country,omitempty"`
+}
+
+type ArtistDetails struct {
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	SortName string `json:"sort-name"`
+}
+
+type Artist struct {
+	Name    string        `json:"name"`
+	Details ArtistDetails `json:"artist"`
+}
+
+type MusicBrainzAlbumResponse struct {
+	Created  string    `json:"created"`
+	Count    int       `json:"count"`
+	Offset   int       `json:"offset"`
+	Releases []Release `json:"releases"`
+}
+
 func searchAlbum(url string) (*MusicBrainzAlbumResponse, *merrors.MError) {
 	res, merr := getRequest(url)
 	if merr != nil {
