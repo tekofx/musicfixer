@@ -90,4 +90,7 @@ const (
 	CouldNotGetResponse        MErrorCode = 204
 	CouldNotDecodeJson         MErrorCode = 205
 	EmptyResponse              MErrorCode = 206
+
+	// Musibrainz 300-399
+	NoValidReleaseFound MErrorCode = 300
 )

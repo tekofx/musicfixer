@@ -38,8 +38,14 @@ func (mc *MusicCollection) FixMetadata() {
 			return
 		}
 
-		meta := m.Releases[0]
-		fmt.Printf("Album Name: %s, Artist: %s", meta.Title, meta.ArtistCredit[0].Details.SortName)
+		meta := m.GetFirstValidRelease()
+		if meta == nil {
+			merrors.New(merrors.NoValidReleaseFound, "No valid release found").Print()
+			return
+		}
+
+		fmt.Println(*meta.Date)
+		fmt.Printf("Album Name: %s, Artist: %s, Year: %s", meta.Title, meta.ArtistCredit[0].Details.SortName, *meta.Date)
 	}
 }
 

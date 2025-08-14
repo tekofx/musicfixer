@@ -12,7 +12,7 @@ type Release struct {
 	ID           string   `json:"id"`
 	Title        string   `json:"title"`
 	ArtistCredit []Artist `json:"artist-credit"`
-	Date         string   `json:"date,omitempty"`
+	Date         *string  `json:"date,omitempty"`
 	Country      string   `json:"country,omitempty"`
 }
 
@@ -28,10 +28,28 @@ type Artist struct {
 }
 
 type MusicBrainzAlbumResponse struct {
-	Created  string    `json:"created"`
-	Count    int       `json:"count"`
-	Offset   int       `json:"offset"`
-	Releases []Release `json:"releases"`
+	Created  string     `json:"created"`
+	Count    int        `json:"count"`
+	Offset   int        `json:"offset"`
+	Releases []*Release `json:"releases"`
+}
+
+func (r *Release) missingMetadata() bool {
+	if r.Date == nil {
+		return true
+	}
+
+	return false
+}
+
+func (m *MusicBrainzAlbumResponse) GetFirstValidRelease() *Release {
+	for _, r := range m.Releases {
+		if !r.missingMetadata() {
+			return r
+		}
+	}
+	return nil
+
 }
 
 func searchAlbum(url string) (*MusicBrainzAlbumResponse, *merrors.MError) {
