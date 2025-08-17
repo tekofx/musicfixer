@@ -81,6 +81,10 @@ func GetDir() (*string, *merrors.MError) {
 }
 
 func DryRun(musicCollection *model.MusicCollection, outputDir string) {
+	if musicCollection.HasMetaErrors() {
+		musicCollection.PrintMetaErrors()
+		os.Exit(0)
+	}
 	for _, album := range musicCollection.Albums {
 		outputPath := filepath.Join(outputDir, album.Name)
 		coverPath := filepath.Join(outputPath, "cover.jpg")
