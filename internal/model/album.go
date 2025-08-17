@@ -26,7 +26,7 @@ func (a *Album) AddSong(song Song) {
 }
 
 func (a *Album) FixMetadata() *merrors.MError {
-	meta, merr := api.GetAlbumByName(a.Name)
+	meta, merr := api.GetAlbumByNameAndArtist(a.Name, a.Songs[0].Artist)
 	if merr != nil {
 		return merr
 	}
@@ -35,24 +35,22 @@ func (a *Album) FixMetadata() *merrors.MError {
 	if merr != nil {
 		return merr
 	}
-	artistSplit := strings.Split(meta.ArtistCredit[0].Details.SortName, ", ")
-	artistName := fmt.Sprintf("%s %s", artistSplit[1], artistSplit[0])
-	fmt.Printf("Album Name: %s, Artist: %s, Year: %s", meta.Title, meta.ArtistCredit[0].Details.SortName, *meta.Date)
+	artistName := meta.ArtistCredit[0].Details.SortName
+	if strings.Contains(artistName, ",") {
+		artistSplit := strings.Split(meta.ArtistCredit[0].Details.SortName, ", ")
+		artistName = fmt.Sprintf("%s %s", artistSplit[1], artistSplit[0])
+	}
 
 	for _, s := range a.Songs {
-		fmt.Println("Song ", s.Title)
 		if s.AlbumArtist == "" {
-			//fmt.Println(" - Album artist:", artistName)
 			s.AlbumArtist = artistName
 		}
 
 		if s.Year != year {
-			fmt.Println(" - Year:", year)
 			s.Year = year
 		}
 
 		if s.Picture == nil {
-			//fmt.Println("Cover is nil")
 			s.AddCover(cover)
 		}
 

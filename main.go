@@ -36,11 +36,16 @@ func main() {
 	}
 
 	if musicCollection.HasMetaErrors() {
-		musicCollection.PrintMetaErrors()
-		if !completeMetadata {
+		if completeMetadata {
+			merr = musicCollection.FixMetadata()
+			if merr != nil {
+				merr.Print()
+				os.Exit(0)
+			}
+		} else {
+			musicCollection.PrintMetaErrors()
 			os.Exit(0)
 		}
-		musicCollection.FixMetadata()
 	}
 
 	musicCollection.SetNewFilePaths()

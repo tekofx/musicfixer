@@ -42,7 +42,7 @@ func NewSong(filepath string) (*Song, *merrors.MError) {
 		Title:     tag.Title(),
 		AlbumName: tag.Album(),
 		Year:      tag.Year(),
-		Artist:    metadata.GetAlbumArtist(tag),
+		Artist:    tag.Artist(),
 		Track:     metadata.GetTrack(tag),
 		Disc:      metadata.GetDisc(tag),
 		Picture:   metadata.GetPicture(tag),
