@@ -11,16 +11,15 @@ import (
 func CheckMetadata(m *id3v2.Tag, path string) []merrors.MError {
 	var merrs []merrors.MError
 
+	if m.Title() == "" {
+		merrs = append(merrs, *merrors.New(merrors.MissingTitle, "Missing Title"))
+	}
 	if m.Artist() == "" {
 		merrs = append(merrs, *merrors.New(merrors.MissingArtist, "Missing Artist"))
 	}
 
 	if m.Album() == "" {
 		merrs = append(merrs, *merrors.New(merrors.MissingAlbum, "Missing Album"))
-	}
-
-	if m.Title() == "" {
-		merrs = append(merrs, *merrors.New(merrors.MissingTitle, "Missing Title"))
 	}
 
 	if GetTrack(m) == -1 {

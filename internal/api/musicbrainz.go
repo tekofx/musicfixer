@@ -89,15 +89,6 @@ func searchAlbumByName(album string) (*MusicBrainzAlbumResponse, *merrors.MError
 	return searchAlbum(url)
 }
 
-func GetAlbumByName(name string) (*Release, *merrors.MError) {
-	res, merr := searchAlbumByName(name)
-	if merr != nil {
-		return nil, merr
-	}
-
-	return res.GetFirstValidRelease(), nil
-}
-
 func GetAlbumByNameAndArtist(name string, artist string) (*Release, *merrors.MError) {
 	res, merr := searchAlbumByNameAndArtist(name, artist)
 	if merr != nil {

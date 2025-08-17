@@ -18,6 +18,8 @@ func TestReadMetadata(t *testing.T) {
 
 func TestWriteMetadata(t *testing.T) {
 	t.Run("Write Metadata", testWriteMetadata)
+	merr := removeMetadataFromFile("files/empty_tags.mp3")
+	AssertMErrorNotNil(t, merr)
 }
 
 func TestFixMetadata(t *testing.T) {
@@ -88,13 +90,12 @@ func testWriteMetadata(t *testing.T) {
 	song, merr = model.NewSong("files/empty_tags.mp3")
 
 	AssertMErrorNotNil(t, merr)
-	Assert(t, len(song.MErrors) == 5, "No metadata errors")
+	Assert(t, len(song.MErrors) == 6, "Not all metadata errors")
 
-	Assert(t, song.ContainsMetadataError(merrors.MissingTitle), "Missing title")
-	Assert(t, song.ContainsMetadataError(merrors.MissingAlbum), "Missing album")
-	Assert(t, song.ContainsMetadataError(merrors.MissingAlbumArtist), "Missing album artist")
-	Assert(t, song.ContainsMetadataError(merrors.MissingYear), "Missing year")
-	merr = removeMetadataFromFile("files/empty_tags.mp3")
-	AssertMErrorNotNil(t, merr)
-
+	Assert(t, song.ContainsMetadataError(merrors.MissingTitle), "Not missing title")
+	Assert(t, song.ContainsMetadataError(merrors.MissingArtist), "Not missing artist")
+	Assert(t, song.ContainsMetadataError(merrors.MissingAlbum), "Not missing album")
+	Assert(t, song.ContainsMetadataError(merrors.MissingTrackNumber), "Not missing track number")
+	Assert(t, song.ContainsMetadataError(merrors.MissingAlbumArtist), "Not missing album artist")
+	Assert(t, song.ContainsMetadataError(merrors.MissingYear), "Not missing year")
 }
