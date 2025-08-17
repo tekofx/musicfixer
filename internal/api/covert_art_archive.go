@@ -21,6 +21,21 @@ type CoverArtImage struct {
 	Image string `json:image`
 }
 
+func GetReleaseCover(releaseId string) ([]byte, *merrors.MError) {
+	url := fmt.Sprintf("http://coverartarchive.org/release/%s",
+		url.QueryEscape(releaseId),
+	)
+
+	res, merr := getRequest(url)
+	if merr != nil {
+		return nil, merr
+	}
+	defer res.Body.Close()
+
+	//TODO
+	return nil, nil
+}
+
 func SaveReleaseCover(releaseId string) *merrors.MError {
 	url := fmt.Sprintf("http://coverartarchive.org/release/%s",
 		url.QueryEscape(releaseId),
@@ -38,12 +53,12 @@ func SaveReleaseCover(releaseId string) *merrors.MError {
 		return merrors.NewWithArgs(merrors.CouldNotDecodeJson, err)
 	}
 
-	data.Images[0].Save("test.jpg")
+	data.Images[0].save("test.jpg")
 	return nil
 
 }
 
-func (c *CoverArtImage) Save(filepath string) *merrors.MError {
+func (c *CoverArtImage) save(filepath string) *merrors.MError {
 	// 1. Fetch the image
 	resp, err := http.Get(c.Image)
 	if err != nil {
