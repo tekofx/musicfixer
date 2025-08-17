@@ -1,0 +1,25 @@
+meta {
+  name: Get Release by album name and artist
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://musicbrainz.org/ws/2/release?query=artist:siames AND release:bounce&fmt=json
+  body: none
+  auth: none
+}
+
+params:query {
+  query: artist:siames AND release:bounce
+  fmt: json
+}
+
+headers {
+  Accept: application/json
+  User-Agent: MyMusicApp/1.0
+}
+
+settings {
+  encodeUrl: true
+}

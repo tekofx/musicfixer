@@ -3,14 +3,15 @@ package flags
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
+	merrors "github.com/tekofx/musicfixer/internal/errors"
 	"github.com/tekofx/musicfixer/internal/model"
 )
 
-func pathExists(path string) (bool, error) {
+func pathExists(path string) (bool, *merrors.MError) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil // Path exists
@@ -18,11 +19,10 @@ func pathExists(path string) (bool, error) {
 	if os.IsNotExist(err) {
 		return false, nil // Path does not exist
 	}
-	return false, err // Some other error (e.g., permission denied)
+	return false, merrors.NewWithArgs(merrors.UnexpectedError, err) // Some other error (e.g., permission denied)
 }
 
-func SetupFlags() (string, bool, bool) {
-
+func SetupFlags() (string, bool, bool, bool, *merrors.MError) {
 	var outputDir string
 	outputDir = "output"
 	flag.StringVar(&outputDir, "output", "output", "Output directory")
@@ -34,6 +34,11 @@ func SetupFlags() (string, bool, bool) {
 	var removeOriginalFolder bool
 	flag.BoolVar(&removeOriginalFolder, "remove", false, "Remove original folder")
 	flag.BoolVar(&removeOriginalFolder, "r", false, "Remove original folder")
+
+	var completeMetadata bool
+	flag.BoolVar(&completeMetadata, "fix", false, "Complete missing metadata")
+	flag.BoolVar(&completeMetadata, "f", false, "Complete missing metadata")
+
 	// Help flag
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [FLAGS] [directory]\n", os.Args[0])
@@ -42,36 +47,45 @@ func SetupFlags() (string, bool, bool) {
 		fmt.Fprintf(os.Stderr, "-o, --output\t Output directory of renamed files\n")
 		fmt.Fprintf(os.Stderr, "-h, --help\t Show Help\n")
 		fmt.Fprintf(os.Stderr, "-r, --remove\t Remove original folder\n")
-
+		fmt.Fprintf(os.Stderr, "-f, --fix\t Completes missing metadata\n")
 	}
 
 	flag.Parse()
-	return outputDir, dryRun, removeOriginalFolder
+
+	if len(flag.Args()) > 1 {
+		return "", false, false, false, merrors.NewWithArgs(merrors.WrongFlagsPosition, "Flags go before directory: musicfixer", strings.Join(flag.Args()[1:], " "), flag.Arg(0))
+	}
+
+	return outputDir, dryRun, removeOriginalFolder, completeMetadata, nil
 }
 
-func GetDir() string {
+func GetDir() (*string, *merrors.MError) {
 	args := flag.Args()
 	rootDir, _ := os.Getwd()
 
 	if len(args) == 0 {
-		return rootDir
+		return &rootDir, nil
 	}
 
-	pathExists, err := pathExists(args[0])
-	if err != nil {
-		log.Fatal(err)
+	pathExists, merr := pathExists(args[0])
+	if merr != nil {
+		return nil, merr
 	}
 	if !pathExists {
-		log.Fatal("Path not exists")
+		return nil, merrors.New(merrors.PathNotExists, "Path not exists")
 	} else {
 		rootDir = args[0]
 	}
 
-	return rootDir
+	return &rootDir, nil
 }
 
-func DryRun(albumSongs *map[string]model.Album, outputDir string) {
-	for _, album := range *albumSongs {
+func DryRun(musicCollection *model.MusicCollection, outputDir string) {
+	if musicCollection.HasMetaErrors() {
+		musicCollection.PrintMetaErrors()
+		os.Exit(0)
+	}
+	for _, album := range musicCollection.Albums {
 		outputPath := filepath.Join(outputDir, album.Name)
 		coverPath := filepath.Join(outputPath, "cover.jpg")
 		fmt.Printf("Cover: %s\n", coverPath)

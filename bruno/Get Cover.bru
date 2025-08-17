@@ -1,0 +1,19 @@
+meta {
+  name: Get Cover
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://coverartarchive.org/release/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 081e97d7-2a97-4e75-857b-b6b6f4864c12
+}
+
+settings {
+  encodeUrl: true
+}
