@@ -51,7 +51,7 @@ func GetReleaseCover(releaseId string) ([]byte, *merrors.MError) {
 		return nil, merr
 	}
 
-	return imageData, merr
+	return imageData, nil
 
 }
 

@@ -98,7 +98,7 @@ func (song *Song) SaveCover(outputFilePath string) *merrors.MError {
 	var err error
 
 	// Check if cover art exists
-	if song.Picture != nil {
+	if song.Picture == nil {
 		return merrors.New(merrors.MissingCover, "No cover found to save")
 
 	}

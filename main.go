@@ -30,6 +30,11 @@ func main() {
 		os.Exit(0)
 	}
 
+	if dry {
+		flags.DryRun(musicCollection, outputDir)
+		os.Exit(0)
+	}
+
 	if musicCollection.HasMetaErrors() {
 		musicCollection.PrintMetaErrors()
 		if !completeMetadata {
@@ -39,10 +44,6 @@ func main() {
 	}
 
 	musicCollection.SetNewFilePaths()
-
-	if dry {
-		flags.DryRun(musicCollection, outputDir)
-	}
 
 	merr = musicCollection.RenameSongs(outputDir)
 	if merr != nil {
