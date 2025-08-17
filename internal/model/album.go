@@ -26,7 +26,7 @@ func (a *Album) AddSong(song Song) {
 }
 
 func (a *Album) FixMetadata() *merrors.MError {
-	fmt.Println("Getting metadata from musicbrainz...")
+	fmt.Printf("Album '%s': Getting metadata from musicbrainz...\n", a.Name)
 	meta, merr := api.GetAlbumByNameAndArtist(a.Name, a.Songs[0].Artist)
 	if merr != nil {
 		return merr

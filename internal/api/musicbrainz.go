@@ -65,7 +65,7 @@ func searchAlbum(url string) (*MusicBrainzAlbumResponse, *merrors.MError) {
 	}
 
 	if data.Count == 0 {
-		return nil, merrors.New(merrors.EmptyResponse, "Album response is empty")
+		return nil, merrors.New(merrors.ReleaseNotFound, "Release not found")
 	}
 	return &data, nil
 }

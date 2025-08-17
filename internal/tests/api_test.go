@@ -19,7 +19,7 @@ func searchAlbum(t *testing.T) {
 	Assert(t, album.Title == "BOUNCE INTO THE MUSIC", "Album not corresponds")
 
 	album, merr = api.GetAlbumByNameAndArtist("siames", "bounce")
-	AssertMError(t, merr, merrors.EmptyResponse, "Album response is empty")
+	AssertMError(t, merr, merrors.ReleaseNotFound, "Release not found")
 }
 
 func downloadCover(t *testing.T) {

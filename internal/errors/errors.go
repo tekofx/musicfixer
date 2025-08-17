@@ -89,7 +89,7 @@ const (
 	CouldNotCreateRequest      MErrorCode = 203
 	CouldNotGetResponse        MErrorCode = 204
 	CouldNotDecodeJson         MErrorCode = 205
-	EmptyResponse              MErrorCode = 206
+	ReleaseNotFound            MErrorCode = 206
 	CouldNotGetImageBytes      MErrorCode = 207
 
 	// Musibrainz 300-399
