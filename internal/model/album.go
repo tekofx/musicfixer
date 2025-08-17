@@ -36,11 +36,14 @@ func (a *Album) FixMetadata() *merrors.MError {
 	if merr != nil {
 		return merr
 	}
+
 	artistName := meta.ArtistCredit[0].Details.SortName
 	if strings.Contains(artistName, ",") {
 		artistSplit := strings.Split(meta.ArtistCredit[0].Details.SortName, ", ")
 		artistName = fmt.Sprintf("%s %s", artistSplit[1], artistSplit[0])
 	}
+
+	fmt.Println(year)
 
 	for _, s := range a.Songs {
 		if s.AlbumArtist == "" {

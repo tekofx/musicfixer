@@ -13,9 +13,10 @@ type Metadata struct {
 }
 
 const (
-	MetadataTrack       = "TRCK"
-	MetadataDisc        = "TPOS"
-	MetadataCover       = "APIC"
-	MetadataAlbumArtist = "TPE2"
-	MetadataYear        = "TDRC"
+	MetadataTrack         = "TRCK"
+	MetadataDisc          = "TPOS"
+	MetadataCover         = "APIC"
+	MetadataAlbumArtist   = "TPE2"
+	MetadataRecordingTime = "TDRC"
+	MetadataYear          = "TYER"
 )
