@@ -64,7 +64,8 @@ func (song *Song) UpdateFile() *merrors.MError {
 		tag.AddTextFrame(metadata.MetadataDisc, tag.DefaultEncoding(), strconv.Itoa(*song.Disc))
 	}
 	tag.AddTextFrame(metadata.MetadataAlbumArtist, tag.DefaultEncoding(), song.Artist)
-
+	tag.AddTextFrame(metadata.MetadataYear, tag.DefaultEncoding(), song.Year)
+	tag.AddTextFrame(metadata.MetadataAlbumArtist, tag.DefaultEncoding(), song.AlbumArtist)
 	tag.AddAttachedPicture(*song.Picture)
 
 	// Save tag to file
@@ -82,6 +83,15 @@ func (song *Song) ContainsMetadataError(code merrors.MErrorCode) bool {
 		}
 	}
 	return false
+}
+
+func (song *Song) AddCover(imageData []byte) {
+	song.Picture = &id3v2.PictureFrame{
+		Picture:     imageData,
+		PictureType: id3v2.PTFrontCover,
+		Encoding:    id3v2.EncodingISO,
+	}
+
 }
 
 func (song *Song) SaveCover(outputFilePath string) *merrors.MError {

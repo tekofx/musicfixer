@@ -47,7 +47,7 @@ func SetupFlags() (string, bool, bool, bool, *merrors.MError) {
 		fmt.Fprintf(os.Stderr, "-o, --output\t Output directory of renamed files\n")
 		fmt.Fprintf(os.Stderr, "-h, --help\t Show Help\n")
 		fmt.Fprintf(os.Stderr, "-r, --remove\t Remove original folder\n")
-
+		fmt.Fprintf(os.Stderr, "-f, --fix\t Completes missing metadata\n")
 	}
 
 	flag.Parse()

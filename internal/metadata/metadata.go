@@ -17,4 +17,5 @@ const (
 	MetadataDisc        = "TPOS"
 	MetadataCover       = "APIC"
 	MetadataAlbumArtist = "TPE2"
+	MetadataYear        = "TDRC"
 )

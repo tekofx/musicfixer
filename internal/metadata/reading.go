@@ -81,6 +81,10 @@ func GetPicture(metadata *id3v2.Tag) *id3v2.PictureFrame {
 
 }
 
+func GetYear(metadata *id3v2.Tag) string {
+	return metadata.Year()
+}
+
 func GetAlbumArtist(metadata *id3v2.Tag) string {
 	return metadata.GetTextFrame("TPE2").Text
 }

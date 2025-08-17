@@ -31,6 +31,10 @@ func (a *Album) FixMetadata() *merrors.MError {
 		return merr
 	}
 	year := strings.Split(*meta.Date, "-")[0]
+	cover, merr := api.GetReleaseCover(meta.ID)
+	if merr != nil {
+		return merr
+	}
 	artistSplit := strings.Split(meta.ArtistCredit[0].Details.SortName, ", ")
 	artistName := fmt.Sprintf("%s %s", artistSplit[1], artistSplit[0])
 	fmt.Printf("Album Name: %s, Artist: %s, Year: %s", meta.Title, meta.ArtistCredit[0].Details.SortName, *meta.Date)
@@ -38,13 +42,21 @@ func (a *Album) FixMetadata() *merrors.MError {
 	for _, s := range a.Songs {
 		fmt.Println("Song ", s.Title)
 		if s.AlbumArtist == "" {
-			fmt.Println(" - Album artist:", artistName)
-			//s.AlbumArtist = &meta.ArtistCredit[0].Details.SortName
+			//fmt.Println(" - Album artist:", artistName)
+			s.AlbumArtist = artistName
 		}
 
 		if s.Year != year {
 			fmt.Println(" - Year:", year)
+			s.Year = year
 		}
+
+		if s.Picture == nil {
+			//fmt.Println("Cover is nil")
+			s.AddCover(cover)
+		}
+
+		s.UpdateFile()
 
 	}
 
