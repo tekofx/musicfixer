@@ -49,7 +49,6 @@ func (m *MusicBrainzAlbumResponse) GetFirstValidRelease() *Release {
 		}
 	}
 	return nil
-
 }
 
 func searchAlbum(url string) (*MusicBrainzAlbumResponse, *merrors.MError) {
@@ -71,7 +70,7 @@ func searchAlbum(url string) (*MusicBrainzAlbumResponse, *merrors.MError) {
 	return &data, nil
 }
 
-func SearchAlbumByArtistAndAlbum(artist string, album string) (*MusicBrainzAlbumResponse, *merrors.MError) {
+func searchAlbumByNameAndArtist(album string, artist string) (*MusicBrainzAlbumResponse, *merrors.MError) {
 	// URL-encode the query properly
 	url := fmt.Sprintf("https://musicbrainz.org/ws/2/release?query=artist:%s%%20AND%%20release:%s&fmt=json",
 		url.QueryEscape(artist),
@@ -81,11 +80,29 @@ func SearchAlbumByArtistAndAlbum(artist string, album string) (*MusicBrainzAlbum
 	return searchAlbum(url)
 }
 
-func SearchAlbumByName(album string) (*MusicBrainzAlbumResponse, *merrors.MError) {
+func searchAlbumByName(album string) (*MusicBrainzAlbumResponse, *merrors.MError) {
 	// URL-encode the query properly
 	url := fmt.Sprintf("https://musicbrainz.org/ws/2/release?query=release:%s&fmt=json",
 		url.QueryEscape(album),
 	)
 
 	return searchAlbum(url)
+}
+
+func GetAlbumByName(name string) (*Release, *merrors.MError) {
+	res, merr := searchAlbumByName(name)
+	if merr != nil {
+		return nil, merr
+	}
+
+	return res.GetFirstValidRelease(), nil
+}
+
+func GetAlbumByNameAndArtist(name string, artist string) (*Release, *merrors.MError) {
+	res, merr := searchAlbumByNameAndArtist(name, artist)
+	if merr != nil {
+		return nil, merr
+	}
+
+	return res.GetFirstValidRelease(), nil
 }

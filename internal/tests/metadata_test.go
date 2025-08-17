@@ -20,6 +20,10 @@ func TestWriteMetadata(t *testing.T) {
 	t.Run("Write Metadata", testWriteMetadata)
 }
 
+func TestFixMetadata(t *testing.T) {
+
+}
+
 func testReadMetadata(t *testing.T) {
 	song, merr := model.NewSong("files/correct_metadata.mp3")
 	AssertMErrorNotNil(t, merr)

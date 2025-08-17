@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/tekofx/musicfixer/internal/api"
+	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
 func TestMusicBrainz(t *testing.T) {
@@ -13,9 +14,12 @@ func TestMusicBrainz(t *testing.T) {
 }
 
 func searchAlbum(t *testing.T) {
-	album, merr := api.SearchAlbumByArtistAndAlbum("siames", "bounce")
+	album, merr := api.GetAlbumByNameAndArtist("bounce", "siames")
 	AssertMErrorNotNil(t, merr)
-	Assert(t, album.Releases[0].Title == "BOUNCE INTO THE MUSIC", "Album not corresponds")
+	Assert(t, album.Title == "BOUNCE INTO THE MUSIC", "Album not corresponds")
+
+	album, merr = api.GetAlbumByNameAndArtist("siames", "bounce")
+	AssertMError(t, merr, merrors.EmptyResponse, "Album response is empty")
 }
 
 func downloadCover(t *testing.T) {

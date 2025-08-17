@@ -23,6 +23,7 @@ type Song struct {
 	Picture     *id3v2.PictureFrame
 	AlbumName   string
 	Artist      string
+	AlbumArtist string
 	MErrors     []merrors.MError
 }
 

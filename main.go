@@ -32,12 +32,14 @@ func main() {
 
 	if musicCollection.HasMetaErrors() {
 		musicCollection.PrintMetaErrors()
-		musicCollection.FixMetadata()
+		merr := musicCollection.FixMetadata()
+		if merr != nil {
+			merr.Print()
+		}
 		os.Exit(0)
 	}
 
 	if completeMetadata {
-		fmt.Println("a")
 		musicCollection.FixMetadata()
 	}
 

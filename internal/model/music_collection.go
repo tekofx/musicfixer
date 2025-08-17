@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tekofx/musicfixer/internal/api"
 	merrors "github.com/tekofx/musicfixer/internal/errors"
 )
 
@@ -30,23 +29,16 @@ func (mc *MusicCollection) HasMetaErrors() bool {
 	return false
 }
 
-func (mc *MusicCollection) FixMetadata() {
-	for albumName, _ := range mc.Albums {
-		m, merr := api.SearchAlbumByName(albumName)
+func (mc *MusicCollection) FixMetadata() *merrors.MError {
+	for _, album := range mc.Albums {
+		merr := album.FixMetadata()
 		if merr != nil {
-			merr.Print()
-			return
+			return merr
 		}
 
-		meta := m.GetFirstValidRelease()
-		if meta == nil {
-			merrors.New(merrors.NoValidReleaseFound, "No valid release found").Print()
-			return
-		}
-
-		fmt.Println(*meta.Date)
-		fmt.Printf("Album Name: %s, Artist: %s, Year: %s", meta.Title, meta.ArtistCredit[0].Details.SortName, *meta.Date)
 	}
+
+	return nil
 }
 
 func (mc *MusicCollection) PrintMetaErrors() {
