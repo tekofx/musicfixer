@@ -108,7 +108,6 @@ func (musicCollection *MusicCollection) RenameSongs(outputDir string) *merrors.M
 
 func (m *MusicCollection) ReadAlbums(searchDir string) *merrors.MError {
 	// Initialize a map to group songs by album
-
 	var merr *merrors.MError
 
 	filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {

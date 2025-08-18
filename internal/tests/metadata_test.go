@@ -23,7 +23,19 @@ func TestWriteMetadata(t *testing.T) {
 }
 
 func TestFixMetadata(t *testing.T) {
+	t.Run("Fixing Metadata Wrong Song", testFixMetadataWrongSong)
 
+}
+
+func testFixMetadataWrongSong(t *testing.T) {
+	album := model.Album{
+		Name:   "",
+		Artist: "",
+		Year:   "",
+	}
+	album.AddSong(model.Song{})
+	merr := album.FixMetadata()
+	AssertMError(t, merr, merrors.NotFound, "404")
 }
 
 func testReadMetadata(t *testing.T) {
