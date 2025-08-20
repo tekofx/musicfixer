@@ -12,7 +12,7 @@ type Album struct {
 	Name      string
 	Artist    string
 	Year      string
-	Songs     []Song
+	Songs     []*Song
 	MultiDisk bool
 }
 
@@ -22,7 +22,7 @@ func (a *Album) AddSong(song Song) {
 		a.Artist = song.AlbumArtist
 		a.Year = song.Year
 	}
-	a.Songs = append(a.Songs, song)
+	a.Songs = append(a.Songs, &song)
 }
 
 func (a *Album) FixMetadata() *merrors.MError {
@@ -43,8 +43,6 @@ func (a *Album) FixMetadata() *merrors.MError {
 		artistName = fmt.Sprintf("%s %s", artistSplit[1], artistSplit[0])
 	}
 
-	fmt.Println(year)
-
 	for _, s := range a.Songs {
 		if s.AlbumArtist == "" {
 			s.AlbumArtist = artistName
@@ -58,7 +56,10 @@ func (a *Album) FixMetadata() *merrors.MError {
 			s.AddCover(cover)
 		}
 
-		s.UpdateFile()
+		merr := s.UpdateFile()
+		if merr != nil {
+			return merr
+		}
 
 	}
 
