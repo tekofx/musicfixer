@@ -72,8 +72,7 @@ func (mc *MusicCollection) AddAlbum(album Album) {
 func (m *MusicCollection) SetNewFilePaths() {
 	for _, album := range m.Albums {
 		for i := range album.Songs {
-			newFilePath := album.Songs[i].SetNewFilePath(album)
-			album.Songs[i].NewFilePath = newFilePath
+			album.Songs[i].SetNewFilePath(album)
 		}
 	}
 }

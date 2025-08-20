@@ -120,7 +120,7 @@ func (song *Song) SaveCover(outputFilePath string) *merrors.MError {
 	return nil
 }
 
-func (song *Song) SetNewFilePath(album Album) string {
+func (song *Song) SetNewFilePath(album Album) {
 	track := song.Track
 	var newName string
 	var trackString string
@@ -139,5 +139,6 @@ func (song *Song) SetNewFilePath(album Album) string {
 		newName = fmt.Sprintf("%s. %s.mp3", trackString, utils.CleanFilename(song.Title))
 	}
 
-	return filepath.Join("output", utils.CleanFilename(album.Name), newName)
+	song.NewFilePath = filepath.Join("output", utils.CleanFilename(album.Name), newName)
+
 }
