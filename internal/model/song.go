@@ -139,6 +139,6 @@ func (song *Song) SetNewFilePath(album Album, outputDir string) {
 		newName = fmt.Sprintf("%s. %s.mp3", trackString, utils.CleanFilename(song.Title))
 	}
 
-	song.NewFilePath = filepath.Join(outputDir, song.AlbumArtist, utils.CleanFilename(album.Name), newName)
+	song.NewFilePath = filepath.Join(outputDir, utils.CleanFilename(song.AlbumArtist), utils.CleanFilename(album.Name), newName)
 
 }
