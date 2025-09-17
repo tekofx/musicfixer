@@ -1,18 +1,18 @@
 package utils
 
 import (
+	"regexp"
 	"strings"
 )
 
 func CleanFilename(s string) string {
-	var result strings.Builder
-	allowed := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-. "
+	// Regex explanation:
+	// \p{L}  : any Unicode letter (including accented chars like é, ñ, ü, etc.)
+	// \p{N}  : any Unicode number
+	// _ . - ! ? and space : explicitly allowed symbols
+	re := regexp.MustCompile(`[\p{L}\p{N}_.\-!?¡¿ ]+`)
 
-	for _, c := range s {
-		if strings.ContainsRune(allowed, c) {
-			result.WriteRune(c)
-		}
-	}
-
-	return result.String()
+	// Find all allowed substrings and join them
+	matches := re.FindAllString(s, -1)
+	return strings.Join(matches, "")
 }

@@ -20,7 +20,7 @@ func searchAlbumByNameAndArtist(t *testing.T) {
 	Assert(t, album.Title == "BOUNCE INTO THE MUSIC", "Album not corresponds")
 
 	album, merr = api.GetAlbumByNameAndArtist("siames", "bounce")
-	AssertMError(t, merr, merrors.ReleaseNotFound, "Release not found")
+	AssertMError(t, merr, merrors.NotFound, "Release not found")
 }
 
 func downloadCover(t *testing.T) {
@@ -29,7 +29,7 @@ func downloadCover(t *testing.T) {
 	RemoveFile("test.jpg")
 
 	merr = api.SaveReleaseCover("a")
-	AssertMError(t, merr, merrors.UnexpectecStatusCode, "400")
+	AssertMError(t, merr, merrors.NotFound, "400")
 }
 
 func getReleaseCover(t *testing.T) {
@@ -37,6 +37,6 @@ func getReleaseCover(t *testing.T) {
 	AssertMErrorNotNil(t, merr)
 
 	_, merr = api.GetReleaseCover("a")
-	AssertMError(t, merr, merrors.UnexpectecStatusCode, "400")
+	AssertMError(t, merr, merrors.NotFound, "400")
 
 }

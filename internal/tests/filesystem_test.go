@@ -28,10 +28,8 @@ func testReadAlbum(t *testing.T) {
 	musicCollection := model.NewMusicCollection()
 	merr := musicCollection.ReadAlbums("./")
 	AssertMErrorNotNil(t, merr)
-	// TODO: Check metadata errors
 
 	musicCollection = model.NewMusicCollection()
 	merr = musicCollection.ReadAlbums("test")
-	// TODO: Check metadata errors
 	AssertMError(t, merr, merrors.MP3FilesNotFound, "Not mp3 files found in test")
 }

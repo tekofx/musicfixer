@@ -34,19 +34,19 @@ func NewSong(filepath string) (*Song, *merrors.MError) {
 	}
 	defer tag.Close()
 
-	// TODO: Not working
 	songMetadataErrors := metadata.CheckMetadata(tag, filepath)
 
 	return &Song{
-		FilePath:  filepath,
-		Title:     tag.Title(),
-		AlbumName: tag.Album(),
-		Year:      tag.Year(),
-		Artist:    tag.Artist(),
-		Track:     metadata.GetTrack(tag),
-		Disc:      metadata.GetDisc(tag),
-		Picture:   metadata.GetPicture(tag),
-		MErrors:   songMetadataErrors,
+		FilePath:    filepath,
+		Title:       tag.Title(),
+		AlbumName:   tag.Album(),
+		Year:        tag.Year(),
+		Artist:      tag.Artist(),
+		AlbumArtist: metadata.GetAlbumArtist(tag),
+		Track:       metadata.GetTrack(tag),
+		Disc:        metadata.GetDisc(tag),
+		Picture:     metadata.GetPicture(tag),
+		MErrors:     songMetadataErrors,
 	}, nil
 
 }
@@ -120,7 +120,7 @@ func (song *Song) SaveCover(outputFilePath string) *merrors.MError {
 	return nil
 }
 
-func (song *Song) SetNewFilePath(album Album) string {
+func (song *Song) SetNewFilePath(album Album, outputDir string) {
 	track := song.Track
 	var newName string
 	var trackString string
@@ -139,5 +139,6 @@ func (song *Song) SetNewFilePath(album Album) string {
 		newName = fmt.Sprintf("%s. %s.mp3", trackString, utils.CleanFilename(song.Title))
 	}
 
-	return filepath.Join("output", utils.CleanFilename(album.Name), newName)
+	song.NewFilePath = filepath.Join(outputDir, utils.CleanFilename(song.AlbumArtist), utils.CleanFilename(album.Name), newName)
+
 }

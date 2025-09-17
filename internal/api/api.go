@@ -23,7 +23,7 @@ func getRequest(url string) (*http.Response, *merrors.MError) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, merrors.NewWithArgs(merrors.UnexpectecStatusCode, res.StatusCode)
+		return nil, merrors.NewWithArgs(merrors.NotFound, res.StatusCode)
 	}
 
 	return res, nil

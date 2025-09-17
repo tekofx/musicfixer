@@ -69,11 +69,10 @@ func (mc *MusicCollection) AddAlbum(album Album) {
 	mc.Albums[album.Name] = album
 }
 
-func (m *MusicCollection) SetNewFilePaths() {
+func (m *MusicCollection) SetNewFilePaths(outputDir string) {
 	for _, album := range m.Albums {
 		for i := range album.Songs {
-			newFilePath := album.Songs[i].SetNewFilePath(album)
-			album.Songs[i].NewFilePath = newFilePath
+			album.Songs[i].SetNewFilePath(album, outputDir)
 		}
 	}
 }
@@ -96,7 +95,6 @@ func (musicCollection *MusicCollection) RenameSongs(outputDir string) *merrors.M
 		}
 
 		for _, song := range album.Songs {
-
 			err := os.Rename(song.FilePath, song.NewFilePath)
 			if err != nil {
 				return merrors.NewWithArgs(merrors.CouldNotRenameFile, "Could not rename file", song.FilePath, song.NewFilePath, err)
@@ -108,7 +106,6 @@ func (musicCollection *MusicCollection) RenameSongs(outputDir string) *merrors.M
 
 func (m *MusicCollection) ReadAlbums(searchDir string) *merrors.MError {
 	// Initialize a map to group songs by album
-
 	var merr *merrors.MError
 
 	filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {

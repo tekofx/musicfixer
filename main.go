@@ -48,7 +48,7 @@ func main() {
 		}
 	}
 
-	musicCollection.SetNewFilePaths()
+	musicCollection.SetNewFilePaths(outputDir)
 
 	merr = musicCollection.RenameSongs(outputDir)
 	if merr != nil {

@@ -84,12 +84,12 @@ const (
 
 	// Api Requests 200-299
 	CouldNotFetchImage         MErrorCode = 200
-	UnexpectecStatusCode       MErrorCode = 201
+	UnexpectedStatusCode       MErrorCode = 201
 	CouldNotCopyResponseToFile MErrorCode = 202
 	CouldNotCreateRequest      MErrorCode = 203
 	CouldNotGetResponse        MErrorCode = 204
 	CouldNotDecodeJson         MErrorCode = 205
-	ReleaseNotFound            MErrorCode = 206
+	NotFound                   MErrorCode = 206
 	CouldNotGetImageBytes      MErrorCode = 207
 
 	// Musibrainz 300-399

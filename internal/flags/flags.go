@@ -26,6 +26,7 @@ func SetupFlags() (string, bool, bool, bool, *merrors.MError) {
 	var outputDir string
 	outputDir = "output"
 	flag.StringVar(&outputDir, "output", "output", "Output directory")
+	flag.StringVar(&outputDir, "o", "output", "Output directory")
 
 	var dryRun bool
 	flag.BoolVar(&dryRun, "dry", false, "Show changes")

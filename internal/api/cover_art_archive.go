@@ -75,7 +75,7 @@ func (c *CoverArtImage) toBytes() ([]byte, *merrors.MError) {
 
 	// 2. Check that the response is OK
 	if resp.StatusCode != http.StatusOK {
-		return nil, merrors.NewWithArgs(merrors.UnexpectecStatusCode, resp.StatusCode)
+		return nil, merrors.NewWithArgs(merrors.UnexpectedStatusCode, resp.StatusCode)
 	}
 
 	imageData, err := io.ReadAll(resp.Body)
@@ -95,7 +95,7 @@ func (c *CoverArtImage) save(filepath string) *merrors.MError {
 
 	// 2. Check that the response is OK
 	if resp.StatusCode != http.StatusOK {
-		return merrors.NewWithArgs(merrors.UnexpectecStatusCode, resp.StatusCode)
+		return merrors.NewWithArgs(merrors.UnexpectedStatusCode, resp.StatusCode)
 	}
 
 	// 3. Create the file

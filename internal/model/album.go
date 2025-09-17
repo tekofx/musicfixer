@@ -12,21 +12,24 @@ type Album struct {
 	Name      string
 	Artist    string
 	Year      string
-	Songs     []Song
+	Songs     []*Song
 	MultiDisk bool
 }
 
 func (a *Album) AddSong(song Song) {
-	if len(a.Songs) == 0 {
+	if a.Name == "" {
 		a.Name = song.AlbumName
+	}
+	if a.Artist == "" {
 		a.Artist = song.AlbumArtist
+	}
+	if a.Year == "" {
 		a.Year = song.Year
 	}
-	a.Songs = append(a.Songs, song)
+	a.Songs = append(a.Songs, &song)
 }
 
 func (a *Album) FixMetadata() *merrors.MError {
-	fmt.Printf("Album '%s': Getting metadata from musicbrainz...\n", a.Name)
 	meta, merr := api.GetAlbumByNameAndArtist(a.Name, a.Songs[0].Artist)
 	if merr != nil {
 		return merr
@@ -36,6 +39,7 @@ func (a *Album) FixMetadata() *merrors.MError {
 	if merr != nil {
 		return merr
 	}
+
 	artistName := meta.ArtistCredit[0].Details.SortName
 	if strings.Contains(artistName, ",") {
 		artistSplit := strings.Split(meta.ArtistCredit[0].Details.SortName, ", ")
@@ -55,7 +59,10 @@ func (a *Album) FixMetadata() *merrors.MError {
 			s.AddCover(cover)
 		}
 
-		s.UpdateFile()
+		merr := s.UpdateFile()
+		if merr != nil {
+			return merr
+		}
 
 	}
 
