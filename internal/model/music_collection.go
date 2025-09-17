@@ -69,11 +69,10 @@ func (mc *MusicCollection) AddAlbum(album Album) {
 	mc.Albums[album.Name] = album
 }
 
-func (m *MusicCollection) SetNewFilePaths() {
+func (m *MusicCollection) SetNewFilePaths(outputDir string) {
 	for _, album := range m.Albums {
 		for i := range album.Songs {
-			newFilePath := album.Songs[i].SetNewFilePath(album)
-			album.Songs[i].NewFilePath = newFilePath
+			album.Songs[i].SetNewFilePath(album, outputDir)
 		}
 	}
 }
