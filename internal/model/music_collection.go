@@ -97,6 +97,8 @@ func (musicCollection *MusicCollection) RenameSongs(outputDir string) *merrors.M
 
 		for _, song := range album.Songs {
 
+			fmt.Println(song.Title)
+
 			err := os.Rename(song.FilePath, song.NewFilePath)
 			if err != nil {
 				return merrors.NewWithArgs(merrors.CouldNotRenameFile, "Could not rename file", song.FilePath, song.NewFilePath, err)

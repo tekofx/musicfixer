@@ -15,29 +15,6 @@ func TestReadMetadata(t *testing.T) {
 	t.Run("Missing metadata", testMissingMetadata)
 
 }
-
-func TestWriteMetadata(t *testing.T) {
-	t.Run("Write Metadata", testWriteMetadata)
-	merr := removeMetadataFromFile("files/empty_tags.mp3")
-	AssertMErrorNotNil(t, merr)
-}
-
-func TestFixMetadata(t *testing.T) {
-	t.Run("Fixing Metadata Wrong Song", testFixMetadataWrongSong)
-
-}
-
-func testFixMetadataWrongSong(t *testing.T) {
-	album := model.Album{
-		Name:   "",
-		Artist: "",
-		Year:   "",
-	}
-	album.AddSong(model.Song{})
-	merr := album.FixMetadata()
-	AssertMError(t, merr, merrors.NotFound, "404")
-}
-
 func testReadMetadata(t *testing.T) {
 	song, merr := model.NewSong("files/correct_metadata.mp3")
 	AssertMErrorNotNil(t, merr)
@@ -81,6 +58,11 @@ func testMissingMetadata(t *testing.T) {
 
 }
 
+func TestWriteMetadata(t *testing.T) {
+	t.Run("Write Metadata", testWriteMetadata)
+	merr := removeMetadataFromFile("files/empty_tags.mp3")
+	AssertMErrorNotNil(t, merr)
+}
 func testWriteMetadata(t *testing.T) {
 	// Read the image file
 	imageData, _ := os.ReadFile("files/cover.jpg")
@@ -110,4 +92,39 @@ func testWriteMetadata(t *testing.T) {
 	Assert(t, song.ContainsMetadataError(merrors.MissingTrackNumber), "Not missing track number")
 	Assert(t, song.ContainsMetadataError(merrors.MissingAlbumArtist), "Not missing album artist")
 	Assert(t, song.ContainsMetadataError(merrors.MissingYear), "Not missing year")
+}
+
+func TestFixMetadata(t *testing.T) {
+	t.Run("Fixing Metadata Wrong Song", testFixMetadataWrongSong)
+	t.Run("Fixing Metadata Correct Song", testFixMetadataCorrectSong)
+
+}
+
+func testFixMetadataCorrectSong(t *testing.T) {
+	album := model.Album{
+		Name:   "",
+		Artist: "",
+		Year:   "",
+	}
+	album.AddSong(model.Song{
+		Title:       "The Wolf",
+		Artist:      "SIAMES",
+		AlbumArtist: "SIAMES",
+		AlbumName:   "Bounce Into the Music",
+		Year:        "2016",
+	})
+
+	merr := album.FixMetadata()
+	AssertMErrorNotNil(t, merr)
+}
+
+func testFixMetadataWrongSong(t *testing.T) {
+	album := model.Album{
+		Name:   "",
+		Artist: "",
+		Year:   "",
+	}
+	album.AddSong(model.Song{})
+	merr := album.FixMetadata()
+	AssertMError(t, merr, merrors.NotFound, "404")
 }

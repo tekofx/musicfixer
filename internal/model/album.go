@@ -17,9 +17,13 @@ type Album struct {
 }
 
 func (a *Album) AddSong(song Song) {
-	if len(a.Songs) == 0 {
+	if a.Name == "" {
 		a.Name = song.AlbumName
+	}
+	if a.Artist == "" {
 		a.Artist = song.AlbumArtist
+	}
+	if a.Year == "" {
 		a.Year = song.Year
 	}
 	a.Songs = append(a.Songs, song)
