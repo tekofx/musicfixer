@@ -106,13 +106,11 @@ func testFixMetadataCorrectSong(t *testing.T) {
 		Artist: "",
 		Year:   "",
 	}
-	album.AddSong(model.Song{
-		Title:       "The Wolf",
-		Artist:      "SIAMES",
-		AlbumArtist: "SIAMES",
-		AlbumName:   "Bounce Into the Music",
-		Year:        "2016",
-	})
+
+	song, err := model.NewSong("files/missing_album_artist.mp3")
+	AssertMErrorNotNil(t, err)
+
+	album.AddSong(*song)
 
 	merr := album.FixMetadata()
 	AssertMErrorNotNil(t, merr)
