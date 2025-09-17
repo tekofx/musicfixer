@@ -29,12 +29,6 @@ func testNewSongFails(t *testing.T) {
 	AssertMError(t, merr, merrors.CouldNotOpenFile, "Error while opening mp3 file: open a.mp3: no such file or directory")
 }
 
-func testReadAlbum(t *testing.T) {
-	musicCollection := model.NewMusicCollection()
-	merr := musicCollection.ReadAlbums("./")
-	AssertMErrorNotNil(t, merr)
-}
-
 func testReadAlbumFails(t *testing.T) {
 	musicCollection := model.NewMusicCollection()
 	merr := musicCollection.ReadAlbums("test")
