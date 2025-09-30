@@ -41,11 +41,11 @@ func main() {
 			merr.Print()
 			os.Exit(0)
 		}
-	}
-
-	if musicCollection.HasMetaErrors() {
-		musicCollection.PrintMetaErrors()
-		os.Exit(0)
+	} else {
+		if musicCollection.HasMetaErrors() {
+			musicCollection.PrintMetaErrors()
+			os.Exit(0)
+		}
 	}
 
 	musicCollection.SetNewFilePaths(outputDir)
