@@ -57,15 +57,18 @@ func (song *Song) UpdateFile() *merrors.MError {
 	if err != nil {
 		return merrors.NewWithArgs(merrors.UnexpectedError, err)
 	}
+	tag.DeleteAllFrames()
 
 	// Write tags
-	tag.AddTextFrame(metadata.MetadataTrack, tag.DefaultEncoding(), strconv.Itoa(song.Track))
+	tag.AddTextFrame(metadata.MetadataTitle, id3v2.EncodingUTF8, song.Title)
+	tag.AddTextFrame(metadata.MetadataSongArtist, id3v2.EncodingUTF8, song.Artist)
+	tag.AddTextFrame(metadata.MetadataAlbum, id3v2.EncodingUTF8, song.AlbumName)
+	tag.AddTextFrame(metadata.MetadataTrack, id3v2.EncodingUTF8, strconv.Itoa(song.Track))
 	if song.Disc != nil {
-		tag.AddTextFrame(metadata.MetadataDisc, tag.DefaultEncoding(), strconv.Itoa(*song.Disc))
+		tag.AddTextFrame(metadata.MetadataDisc, id3v2.EncodingUTF8, strconv.Itoa(*song.Disc))
 	}
-	tag.AddTextFrame(metadata.MetadataAlbumArtist, tag.DefaultEncoding(), song.Artist)
-	tag.AddTextFrame(metadata.MetadataYear, tag.DefaultEncoding(), song.Year)
-	tag.AddTextFrame(metadata.MetadataAlbumArtist, tag.DefaultEncoding(), song.AlbumArtist)
+	tag.AddTextFrame(metadata.MetadataYear, id3v2.EncodingUTF8, song.Year)
+	tag.AddTextFrame(metadata.MetadataAlbumArtist, id3v2.EncodingUTF8, song.AlbumArtist)
 	tag.AddAttachedPicture(*song.Picture)
 
 	// Save tag to file
