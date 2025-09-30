@@ -35,17 +35,17 @@ func main() {
 		os.Exit(0)
 	}
 
-	if musicCollection.HasMetaErrors() {
-		if completeMetadata {
-			merr = musicCollection.FixMetadata()
-			if merr != nil {
-				merr.Print()
-				os.Exit(0)
-			}
-		} else {
-			musicCollection.PrintMetaErrors()
+	if completeMetadata {
+		merr = musicCollection.FixMetadata()
+		if merr != nil {
+			merr.Print()
 			os.Exit(0)
 		}
+	}
+
+	if musicCollection.HasMetaErrors() {
+		musicCollection.PrintMetaErrors()
+		os.Exit(0)
 	}
 
 	musicCollection.SetNewFilePaths(outputDir)
